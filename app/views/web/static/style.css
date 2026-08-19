@@ -1,0 +1,191 @@
+:root {
+    --rojo: #b0202c;
+    --rojo-oscuro: #7d1620;
+    --negro: #1a1a1a;
+    --gris: #555;
+    --gris-claro: #f4f4f4;
+    --borde: #ddd;
+    --verde: #1e7e34;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--gris-claro);
+    color: var(--negro);
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--negro);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    flex-wrap: wrap;
+}
+
+.marca {
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+.nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.nav a {
+    color: #ccc;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.nav a:hover, .nav a.activo {
+    color: white;
+    border-bottom-color: var(--rojo);
+}
+
+.logout-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+.usuario-info {
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.contenido {
+    max-width: 1100px;
+    margin: 1.5rem auto;
+    padding: 0 1.5rem;
+}
+
+.flashes { margin-bottom: 1rem; }
+
+.flash {
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.flash-exito { background: #e6f4ea; color: var(--verde); border: 1px solid #b7ddc0; }
+.flash-error { background: #fbe7e9; color: var(--rojo-oscuro); border: 1px solid #f2b8bd; }
+
+h1 { font-size: 1.4rem; margin-bottom: 1rem; }
+h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+
+.tarjeta {
+    background: white;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.9rem;
+}
+
+th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--borde);
+}
+
+th { background: var(--gris-claro); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+
+.tabla-wrap { overflow-x: auto; border: 1px solid var(--borde); border-radius: 6px; }
+
+form.formulario {
+    display: grid;
+    gap: 0.85rem;
+    max-width: 480px;
+}
+
+.campo { display: flex; flex-direction: column; gap: 0.25rem; }
+.campo label { font-size: 0.85rem; color: var(--gris); font-weight: 600; }
+
+input, select, textarea {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    background: var(--rojo);
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn:hover { background: var(--rojo-oscuro); }
+.btn-secundario { background: var(--gris); }
+.btn-secundario:hover { background: #333; }
+.btn-pequeno { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+
+.barra-acciones {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.filtros { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+.tarjetas-resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tarjeta-resumen h3 { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--gris); }
+.tarjeta-resumen .valor { font-size: 1.6rem; font-weight: 700; color: var(--rojo); }
+
+.login-wrap {
+    max-width: 360px;
+    margin: 4rem auto;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    background: var(--gris-claro);
+}
+
+.badge-disponible, .badge-activo, .badge-pendiente { background: #e6f4ea; color: var(--verde); }
+.badge-vendida, .badge-inactivo, .badge-entregada { background: #eee; color: var(--gris); }
+.badge-reservada, .badge-en_proceso { background: #fff4e0; color: #9a6700; }
+.badge-completada { background: #e6f0fb; color: #1a56a8; }

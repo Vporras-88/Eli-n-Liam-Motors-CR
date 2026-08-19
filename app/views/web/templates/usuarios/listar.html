@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Usuarios — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<div class="barra-acciones">
+    <h1>Usuarios</h1>
+    <a class="btn" href="{{ url_for('usuarios.nuevo') }}">+ Crear usuario</a>
+</div>
+
+<div class="tabla-wrap">
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u['id'] }}</td>
+            <td>{{ u['nombre'] }}</td>
+            <td>{{ u['usuario'] }}</td>
+            <td>{{ u['rol'] }}</td>
+            <td><span class="badge badge-{{ 'activo' if u['activo'] else 'inactivo' }}">{{ 'activo' if u['activo'] else 'inactivo' }}</span></td>
+            <td style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('usuarios.editar', usuario_id=u['id']) }}">Editar</a>
+                <form method="post" action="{{ url_for('usuarios.cambiar_estado', usuario_id=u['id']) }}">
+                    <input type="hidden" name="activo" value="{{ '0' if u['activo'] else '1' }}">
+                    <button type="submit" class="btn btn-secundario btn-pequeno">{{ 'Desactivar' if u['activo'] else 'Activar' }}</button>
+                </form>
+                <details>
+                    <summary class="btn btn-secundario btn-pequeno" style="display:inline-block;cursor:pointer;">Contraseña</summary>
+                    <form method="post" action="{{ url_for('usuarios.cambiar_password', usuario_id=u['id']) }}" style="margin-top:0.4rem;display:flex;gap:0.3rem;">
+                        <input type="password" name="password_nueva" placeholder="Nueva contraseña" required>
+                        <button type="submit" class="btn btn-pequeno">OK</button>
+                    </form>
+                </details>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Menú Principal — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Bienvenido/a, {{ usuario['nombre'] }}</h1>
+<p>Seleccione un módulo:</p>
+<div class="tarjetas-resumen">
+    {% for clave, etiqueta, endpoint in opciones %}
+    <a class="tarjeta" style="text-decoration:none;color:inherit;display:block" href="{{ url_for(endpoint) }}">
+        <h3>{{ etiqueta }}</h3>
+        <span class="valor">→</span>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
