@@ -1,6 +1,10 @@
 :root {
-    --rojo: #b0202c;
-    --rojo-oscuro: #7d1620;
+    --verde-metalico: #3d6b4f;
+    --verde-metalico-claro: #7fae8e;
+    --verde-metalico-oscuro: #24402d;
+    --topbar-metal: linear-gradient(120deg, #1c2f21 0%, #2f5439 35%, #6b9c7d 50%, #2f5439 65%, #1c2f21 100%);
+    --btn-metal: linear-gradient(135deg, #4a7d5c, #2f5439);
+    --btn-metal-hover: linear-gradient(135deg, #3a6449, #1c2f21);
     --negro: #1a1a1a;
     --gris: #555;
     --gris-claro: #f4f4f4;
@@ -21,18 +25,32 @@ body {
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    background: var(--negro);
+    background: var(--topbar-metal);
     color: white;
-    padding: 0.75rem 1.5rem;
+    padding: 0.6rem 1.5rem;
     flex-wrap: wrap;
 }
 
 .marca {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     color: white;
     font-weight: 700;
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: 1.35rem;
+    letter-spacing: 0.03em;
     white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 10px rgba(127, 174, 142, 0.5);
+}
+
+.logo-img {
+    height: 60px;
+    width: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
 .nav {
@@ -52,7 +70,7 @@ body {
 
 .nav a:hover, .nav a.activo {
     color: white;
-    border-bottom-color: var(--rojo);
+    border-bottom-color: var(--verde-metalico-claro);
 }
 
 .logout-form {
@@ -83,7 +101,7 @@ body {
 }
 
 .flash-exito { background: #e6f4ea; color: var(--verde); border: 1px solid #b7ddc0; }
-.flash-error { background: #fbe7e9; color: var(--rojo-oscuro); border: 1px solid #f2b8bd; }
+.flash-error { background: #fbe7e9; color: #a33; border: 1px solid #f2b8bd; }
 
 h1 { font-size: 1.4rem; margin-bottom: 1rem; }
 h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
@@ -138,7 +156,7 @@ input, select, textarea {
     padding: 0.5rem 1rem;
     border-radius: 4px;
     border: none;
-    background: var(--rojo);
+    background: var(--btn-metal);
     color: white;
     font-size: 0.9rem;
     cursor: pointer;
@@ -146,7 +164,7 @@ input, select, textarea {
     text-align: center;
 }
 
-.btn:hover { background: var(--rojo-oscuro); }
+.btn:hover { background: var(--btn-metal-hover); }
 .btn-secundario { background: var(--gris); }
 .btn-secundario:hover { background: #333; }
 .btn-pequeno { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
@@ -170,7 +188,7 @@ input, select, textarea {
 }
 
 .tarjeta-resumen h3 { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--gris); }
-.tarjeta-resumen .valor { font-size: 1.6rem; font-weight: 700; color: var(--rojo); }
+.tarjeta-resumen .valor { font-size: 1.6rem; font-weight: 700; color: var(--verde-metalico); }
 
 .login-wrap {
     max-width: 360px;
