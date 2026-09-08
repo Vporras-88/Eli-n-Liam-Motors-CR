@@ -28,6 +28,11 @@ CREATE TABLE IF NOT EXISTS financieras (
     nombre  TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS vendedores (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre  TEXT NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS clientes (
     id                      INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre                  TEXT NOT NULL,
@@ -37,6 +42,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     direccion               TEXT,
     financiera_id           INTEGER REFERENCES financieras(id),
     estado_financiamiento   TEXT CHECK (estado_financiamiento IN ('aprobado', 'rechazado', 'pendiente')),
+    vendedor_id             INTEGER REFERENCES vendedores(id),
     fecha_registro          TEXT NOT NULL
 );
 
@@ -139,6 +145,8 @@ def _migrar_clientes(conn: sqlite3.Connection) -> None:
             "ALTER TABLE clientes ADD COLUMN estado_financiamiento TEXT "
             "CHECK (estado_financiamiento IN ('aprobado', 'rechazado', 'pendiente'))"
         )
+    if "vendedor_id" not in columnas:
+        conn.execute("ALTER TABLE clientes ADD COLUMN vendedor_id INTEGER REFERENCES vendedores(id)")
     conn.commit()
 
 

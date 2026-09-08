@@ -49,6 +49,18 @@
             <option value="rechazado" {{ 'selected' if valores.get('estado_financiamiento') == 'rechazado' else '' }}>Rechazado</option>
         </select>
     </div>
+    <div class="campo">
+        <label for="vendedor_id">Vendedor</label>
+        <div style="display:flex;gap:0.4rem;">
+            <select id="vendedor_id" name="vendedor_id" style="flex:1;">
+                <option value="">— Ninguno —</option>
+                {% for vend in vendedores %}
+                <option value="{{ vend['id'] }}" {{ 'selected' if valores.get('vendedor_id')|string == vend['id']|string else '' }}>{{ vend['nombre'] }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.vendedores') }}" target="_blank" title="Agregar un nuevo vendedor en una pestaña aparte">+ Nuevo</a>
+        </div>
+    </div>
     <div>
         <button type="submit" class="btn">Guardar</button>
         <a class="btn btn-secundario" href="{{ url_for('clientes.listar') }}">Cancelar</a>

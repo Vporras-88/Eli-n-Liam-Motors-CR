@@ -19,12 +19,13 @@ def crear_cliente(
     direccion: str,
     financiera_id: int | None = None,
     estado_financiamiento: str | None = None,
+    vendedor_id: int | None = None,
 ) -> sqlite3.Row:
     if cliente_model.obtener_por_cedula(cedula.strip()) is not None:
         raise ValueError(f"Ya existe un cliente registrado con la cédula {cedula}.")
     cliente_id = cliente_model.crear(
         nombre.strip(), cedula.strip(), telefono.strip(), email.strip(), direccion.strip(),
-        financiera_id, estado_financiamiento,
+        financiera_id, estado_financiamiento, vendedor_id,
     )
     return cliente_model.obtener_por_id(cliente_id)
 
@@ -37,6 +38,7 @@ def editar_cliente(
     direccion: str,
     financiera_id: int | None = _SIN_ESPECIFICAR,
     estado_financiamiento: str | None = _SIN_ESPECIFICAR,
+    vendedor_id: int | None = _SIN_ESPECIFICAR,
 ) -> sqlite3.Row:
     actual = cliente_model.obtener_por_id(cliente_id)
     if actual is None:
@@ -45,9 +47,11 @@ def editar_cliente(
         financiera_id = actual["financiera_id"]
     if estado_financiamiento is _SIN_ESPECIFICAR:
         estado_financiamiento = actual["estado_financiamiento"]
+    if vendedor_id is _SIN_ESPECIFICAR:
+        vendedor_id = actual["vendedor_id"]
     cliente_model.actualizar(
         cliente_id, nombre.strip(), telefono.strip(), email.strip(), direccion.strip(),
-        financiera_id, estado_financiamiento,
+        financiera_id, estado_financiamiento, vendedor_id,
     )
     return cliente_model.obtener_por_id(cliente_id)
 

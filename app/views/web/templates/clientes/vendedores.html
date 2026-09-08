@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Vendedores — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<div class="barra-acciones">
+    <h1>Vendedores</h1>
+    <a class="btn btn-secundario" href="{{ url_for('clientes.listar') }}">Volver a Clientes</a>
+</div>
+
+<div class="tarjeta">
+<form class="filtros" method="post" action="{{ url_for('clientes.nuevo_vendedor') }}">
+    <input type="text" name="nombre" placeholder="Nombre del vendedor" required autofocus>
+    <button type="submit" class="btn">+ Agregar vendedor</button>
+</form>
+</div>
+
+<br>
+<div class="tabla-wrap">
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nombre</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for vend in vendedores %}
+        <tr>
+            <td>{{ vend['id'] }}</td>
+            <td>{{ vend['nombre'] }}</td>
+            <td>
+                <form class="form-en-linea" method="post" action="{{ url_for('clientes.eliminar_vendedor', vendedor_id=vend['id']) }}" onsubmit="return confirm('¿Eliminar al vendedor {{ vend['nombre'] }}?');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3"><em>No hay vendedores registrados.</em></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
