@@ -23,14 +23,21 @@ CREATE TABLE IF NOT EXISTS usuarios (
     fecha_creacion  TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS financieras (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre  TEXT NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS clientes (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre          TEXT NOT NULL,
-    cedula          TEXT NOT NULL UNIQUE,
-    telefono        TEXT,
-    email           TEXT,
-    direccion       TEXT,
-    fecha_registro  TEXT NOT NULL
+    id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre                  TEXT NOT NULL,
+    cedula                  TEXT NOT NULL UNIQUE,
+    telefono                TEXT,
+    email                   TEXT,
+    direccion               TEXT,
+    financiera_id           INTEGER REFERENCES financieras(id),
+    estado_financiamiento   TEXT CHECK (estado_financiamiento IN ('aprobado', 'rechazado', 'pendiente')),
+    fecha_registro          TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS motocicletas (
@@ -117,7 +124,22 @@ def init_db() -> None:
     """Crea el esquema si no existe y siembra el usuario admin por defecto."""
     with get_connection() as conn:
         conn.executescript(SCHEMA)
+        _migrar_clientes(conn)
         _seed_admin(conn)
+
+
+def _migrar_clientes(conn: sqlite3.Connection) -> None:
+    """Agrega a `clientes` las columnas de financiamiento en bases de datos creadas
+    antes de que existieran (SQLite no soporta `ADD COLUMN IF NOT EXISTS`)."""
+    columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(clientes)")}
+    if "financiera_id" not in columnas:
+        conn.execute("ALTER TABLE clientes ADD COLUMN financiera_id INTEGER REFERENCES financieras(id)")
+    if "estado_financiamiento" not in columnas:
+        conn.execute(
+            "ALTER TABLE clientes ADD COLUMN estado_financiamiento TEXT "
+            "CHECK (estado_financiamiento IN ('aprobado', 'rechazado', 'pendiente'))"
+        )
+    conn.commit()
 
 
 def _seed_admin(conn: sqlite3.Connection) -> None:

@@ -210,3 +210,7 @@ input, select, textarea {
 .badge-vendida, .badge-inactivo, .badge-entregada { background: #eee; color: var(--gris); }
 .badge-reservada, .badge-en_proceso { background: #fff4e0; color: #9a6700; }
 .badge-completada { background: #e6f0fb; color: #1a56a8; }
+
+.badge-fin-aprobado { background: #e6f4ea; color: var(--verde); }
+.badge-fin-rechazado { background: #fbe6e6; color: #b3261e; }
+.badge-fin-pendiente { background: #fff4e0; color: #9a6700; }

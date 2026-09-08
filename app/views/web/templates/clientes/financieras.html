@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Financieras — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<div class="barra-acciones">
+    <h1>Financieras</h1>
+    <a class="btn btn-secundario" href="{{ url_for('clientes.listar') }}">Volver a Clientes</a>
+</div>
+
+<div class="tarjeta">
+<form class="filtros" method="post" action="{{ url_for('clientes.nueva_financiera') }}">
+    <input type="text" name="nombre" placeholder="Nombre de la financiera" required autofocus>
+    <button type="submit" class="btn">+ Agregar financiera</button>
+</form>
+</div>
+
+<br>
+<div class="tabla-wrap">
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nombre</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for f in financieras %}
+        <tr>
+            <td>{{ f['id'] }}</td>
+            <td>{{ f['nombre'] }}</td>
+            <td>
+                <form class="form-en-linea" method="post" action="{{ url_for('clientes.eliminar_financiera', financiera_id=f['id']) }}" onsubmit="return confirm('¿Eliminar la financiera {{ f['nombre'] }}?');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3"><em>No hay financieras registradas.</em></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
