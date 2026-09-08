@@ -4,7 +4,7 @@ from app.controllers import auth_controller
 
 # (clave de permiso, etiqueta de menú, endpoint del blueprint)
 OPCIONES_MENU = [
-    ("inventario", "Inventario", "inventario.listar"),
+    ("inventario", "Inventario de Motocicletas", "inventario.listar"),
     ("clientes", "Clientes", "clientes.listar"),
     ("ventas", "Venta de Motocicletas", "ventas.listar"),
     ("repuestos", "Repuestos y Accesorios", "repuestos.listar"),
