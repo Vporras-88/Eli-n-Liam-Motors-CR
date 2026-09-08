@@ -5,6 +5,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from app.controllers import cliente_controller, repuesto_controller, venta_repuesto_controller
 from app.models import venta_repuesto as venta_repuesto_model
 from app.utils import validators as v
+from app.utils.moneda import MONEDA_POR_DEFECTO, MONEDAS
 from app.views.web.auth import requiere_permiso, usuario_actual
 
 bp = Blueprint("ventas_repuestos", __name__, url_prefix="/ventas-repuestos")
@@ -47,7 +48,7 @@ def nueva():
         try:
             venta = venta_repuesto_controller.registrar_venta(
                 int(datos["repuesto_id"]), int(datos["cliente_id"]), usuario_actual()["id"],
-                int(datos["cantidad"]), float(datos["precio_unitario"]), datos.get("metodo_pago", ""),
+                int(datos["cantidad"]), float(datos["precio_unitario"]), datos.get("metodo_pago", ""), _moneda(datos),
             )
             flash(
                 f"Venta registrada: {venta['cantidad']} x {venta['repuesto_nombre']} a {venta['cliente_nombre']}.",
@@ -92,7 +93,7 @@ def editar(venta_id):
             )
         try:
             venta_repuesto_controller.editar_venta(
-                venta_id, int(datos["cantidad"]), float(datos["precio_unitario"]), datos.get("metodo_pago", "")
+                venta_id, int(datos["cantidad"]), float(datos["precio_unitario"]), datos.get("metodo_pago", ""), _moneda(datos)
             )
             flash("Venta actualizada.", "exito")
             return redirect(url_for("ventas_repuestos.listar"))
@@ -116,3 +117,8 @@ def eliminar(venta_id):
     except ValueError as e:
         flash(str(e), "error")
     return redirect(url_for("ventas_repuestos.listar"))
+
+
+def _moneda(datos) -> str:
+    valor = datos.get("moneda", "").strip()
+    return valor if valor in MONEDAS else MONEDA_POR_DEFECTO

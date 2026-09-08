@@ -24,8 +24,8 @@
             <td>{{ v['cliente_nombre'] }}</td>
             <td>{{ v['vendedor_nombre'] }}</td>
             <td>{{ v['cantidad'] }}</td>
-            <td>{{ '%.2f'|format(v['precio_unitario']) }}</td>
-            <td>{{ '%.2f'|format(v['cantidad'] * v['precio_unitario']) }}</td>
+            <td>{{ v['precio_unitario']|moneda(v['moneda']) }}</td>
+            <td>{{ (v['cantidad'] * v['precio_unitario'])|moneda(v['moneda']) }}</td>
             <td>{{ v['metodo_pago'] }}</td>
             <td style="display:flex;gap:0.4rem;">
                 <a class="btn btn-secundario btn-pequeno" href="{{ url_for('ventas_repuestos.editar', venta_id=v['id']) }}">Editar</a>

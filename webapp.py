@@ -8,6 +8,7 @@ import secrets
 from flask import Flask
 
 from app.models.database import init_db
+from app.utils import moneda as moneda_utils
 from app.views.web.auth import usuario_actual
 from app.views.web.nav import opciones_visibles
 
@@ -35,10 +36,13 @@ def crear_app() -> Flask:
     ):
         app.register_blueprint(bp)
 
+    app.jinja_env.filters["moneda"] = moneda_utils.formatear
+    app.jinja_env.filters["simbolo_moneda"] = moneda_utils.simbolo
+
     @app.context_processor
     def inyectar_contexto():
         usuario = usuario_actual()
-        return {"usuario": usuario, "opciones_menu": opciones_visibles(usuario)}
+        return {"usuario": usuario, "opciones_menu": opciones_visibles(usuario), "MONEDAS": moneda_utils.ETIQUETAS}
 
     return app
 

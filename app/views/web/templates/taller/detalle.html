@@ -40,8 +40,8 @@
         <tr>
             <td>{{ r['repuesto_nombre'] }}</td>
             <td>{{ r['cantidad'] }}</td>
-            <td>{{ '%.2f'|format(r['precio_unitario']) }}</td>
-            <td>{{ '%.2f'|format(r['cantidad'] * r['precio_unitario']) }}</td>
+            <td>{{ r['precio_unitario']|moneda(r['moneda']) }}</td>
+            <td>{{ (r['cantidad'] * r['precio_unitario'])|moneda(r['moneda']) }}</td>
         </tr>
         {% else %}
         <tr><td colspan="4"><em>Todavía no se han agregado repuestos a esta orden.</em></td></tr>

@@ -8,6 +8,7 @@ from app.controllers import inventario_controller
 from app.models import motocicleta as moto_model
 from app.models.motocicleta import ESTADOS
 from app.utils import validators as v
+from app.utils.moneda import MONEDA_POR_DEFECTO, MONEDAS
 from app.views.web.auth import requiere_permiso
 
 bp = Blueprint("inventario", __name__, url_prefix="/inventario")
@@ -38,7 +39,7 @@ def nuevo():
         try:
             moto = inventario_controller.crear_moto(
                 datos["marca"], datos["modelo"], int(datos["anio"]), datos.get("color", ""),
-                int(datos["cilindraje"]), datos["vin"], float(datos["precio"]),
+                int(datos["cilindraje"]), datos["vin"], float(datos["precio"]), _moneda(datos),
             )
             flash(f"Motocicleta {moto['marca']} {moto['modelo']} registrada con id {moto['id']}.", "exito")
             return redirect(url_for("inventario.listar"))
@@ -66,7 +67,7 @@ def editar(moto_id):
         try:
             inventario_controller.editar_moto(
                 moto_id, datos["marca"], datos["modelo"], int(datos["anio"]), datos.get("color", ""),
-                int(datos["cilindraje"]), float(datos["precio"]),
+                int(datos["cilindraje"]), float(datos["precio"]), _moneda(datos),
             )
             flash("Motocicleta actualizada.", "exito")
             return redirect(url_for("inventario.listar"))
@@ -100,6 +101,11 @@ def eliminar(moto_id):
     except sqlite3.IntegrityError:
         flash("No se puede eliminar: la motocicleta tiene ventas asociadas.", "error")
     return redirect(url_for("inventario.listar"))
+
+
+def _moneda(datos) -> str:
+    valor = datos.get("moneda", "").strip()
+    return valor if valor in MONEDAS else MONEDA_POR_DEFECTO
 
 
 def _validar(datos, requerir_vin: bool = True) -> list[str]:

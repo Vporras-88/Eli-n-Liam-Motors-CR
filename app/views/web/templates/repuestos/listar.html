@@ -24,7 +24,7 @@
             <td>{{ r['nombre'] }}</td>
             <td>{{ r['categoria'] }}</td>
             <td>{{ r['marca_compatible'] or '—' }}</td>
-            <td>{{ '%.2f'|format(r['precio']) }}</td>
+            <td>{{ r['precio']|moneda(r['moneda']) }}</td>
             <td>{{ r['stock'] }}</td>
             <td>{{ r['proveedor'] or '—' }}</td>
             <td style="display:flex;gap:0.4rem;">

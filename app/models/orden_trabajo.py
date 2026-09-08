@@ -99,16 +99,16 @@ def cambiar_estado(orden_id: int, estado: str) -> None:
 def agregar_repuesto(orden_id: int, repuesto_id: int, cantidad: int) -> None:
     """Registra el uso de un repuesto en la orden y descuenta su stock, en una sola transacción."""
     with get_connection() as conn:
-        repuesto = conn.execute("SELECT precio, stock FROM repuestos WHERE id = ?", (repuesto_id,)).fetchone()
+        repuesto = conn.execute("SELECT precio, moneda, stock FROM repuestos WHERE id = ?", (repuesto_id,)).fetchone()
         if repuesto is None:
             raise ValueError("El repuesto indicado no existe.")
         if repuesto["stock"] < cantidad:
             raise ValueError(f"Stock insuficiente: disponible {repuesto['stock']}, solicitado {cantidad}.")
 
         conn.execute(
-            """INSERT INTO orden_repuestos (orden_id, repuesto_id, cantidad, precio_unitario)
-               VALUES (?, ?, ?, ?)""",
-            (orden_id, repuesto_id, cantidad, repuesto["precio"]),
+            """INSERT INTO orden_repuestos (orden_id, repuesto_id, cantidad, precio_unitario, moneda)
+               VALUES (?, ?, ?, ?, ?)""",
+            (orden_id, repuesto_id, cantidad, repuesto["precio"], repuesto["moneda"]),
         )
         conn.execute(
             "UPDATE repuestos SET stock = stock - ? WHERE id = ?",

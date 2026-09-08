@@ -11,7 +11,13 @@ from app.models.database import get_connection
 
 
 def registrar(
-    repuesto_id: int, cliente_id: int, vendedor_id: int, cantidad: int, precio_unitario: float, metodo_pago: str
+    repuesto_id: int,
+    cliente_id: int,
+    vendedor_id: int,
+    cantidad: int,
+    precio_unitario: float,
+    metodo_pago: str,
+    moneda: str = "CRC",
 ) -> int:
     with get_connection() as conn:
         repuesto = conn.execute("SELECT stock FROM repuestos WHERE id = ?", (repuesto_id,)).fetchone()
@@ -21,16 +27,17 @@ def registrar(
             raise ValueError("No hay stock suficiente para esta venta.")
 
         cur = conn.execute(
-            """INSERT INTO ventas_repuestos (repuesto_id, cliente_id, vendedor_id, fecha, cantidad, precio_unitario, metodo_pago)
-               VALUES (?, ?, ?, datetime('now', 'localtime'), ?, ?, ?)""",
-            (repuesto_id, cliente_id, vendedor_id, cantidad, precio_unitario, metodo_pago),
+            """INSERT INTO ventas_repuestos
+               (repuesto_id, cliente_id, vendedor_id, fecha, cantidad, precio_unitario, moneda, metodo_pago)
+               VALUES (?, ?, ?, datetime('now', 'localtime'), ?, ?, ?, ?)""",
+            (repuesto_id, cliente_id, vendedor_id, cantidad, precio_unitario, moneda, metodo_pago),
         )
         conn.execute("UPDATE repuestos SET stock = stock - ? WHERE id = ?", (cantidad, repuesto_id))
         conn.commit()
         return cur.lastrowid
 
 
-def actualizar(venta_id: int, cantidad: int, precio_unitario: float, metodo_pago: str) -> None:
+def actualizar(venta_id: int, cantidad: int, precio_unitario: float, metodo_pago: str, moneda: str = "CRC") -> None:
     """Actualiza cantidad/precio/método y ajusta el stock por la diferencia de cantidad, en una sola transacción."""
     with get_connection() as conn:
         venta = conn.execute(
@@ -51,8 +58,8 @@ def actualizar(venta_id: int, cantidad: int, precio_unitario: float, metodo_pago
             )
 
         conn.execute(
-            "UPDATE ventas_repuestos SET cantidad = ?, precio_unitario = ?, metodo_pago = ? WHERE id = ?",
-            (cantidad, precio_unitario, metodo_pago, venta_id),
+            "UPDATE ventas_repuestos SET cantidad = ?, precio_unitario = ?, moneda = ?, metodo_pago = ? WHERE id = ?",
+            (cantidad, precio_unitario, moneda, metodo_pago, venta_id),
         )
         conn.commit()
 

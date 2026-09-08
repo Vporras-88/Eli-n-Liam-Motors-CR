@@ -20,7 +20,7 @@
             <td>{{ v['vin'] }}</td>
             <td>{{ v['cliente_nombre'] }}</td>
             <td>{{ v['vendedor_nombre'] }}</td>
-            <td>{{ '%.2f'|format(v['precio_final']) }}</td>
+            <td>{{ v['precio_final']|moneda(v['moneda']) }}</td>
             <td>{{ v['metodo_pago'] }}</td>
             <td style="display:flex;gap:0.4rem;">
                 <a class="btn btn-secundario btn-pequeno" href="{{ url_for('ventas.editar', venta_id=v['id']) }}">Editar</a>

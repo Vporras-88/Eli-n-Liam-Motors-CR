@@ -5,17 +5,23 @@ import sqlite3
 from app.models import motocicleta as moto_model
 
 
-def crear_moto(marca: str, modelo: str, anio: int, color: str, cilindraje: int, vin: str, precio: float) -> sqlite3.Row:
+def crear_moto(
+    marca: str, modelo: str, anio: int, color: str, cilindraje: int, vin: str, precio: float, moneda: str = "CRC"
+) -> sqlite3.Row:
     if moto_model.obtener_por_vin(vin.strip()) is not None:
         raise ValueError(f"Ya existe una motocicleta registrada con el VIN {vin}.")
-    moto_id = moto_model.crear(marca.strip(), modelo.strip(), anio, color.strip(), cilindraje, vin.strip(), precio)
+    moto_id = moto_model.crear(
+        marca.strip(), modelo.strip(), anio, color.strip(), cilindraje, vin.strip(), precio, moneda
+    )
     return moto_model.obtener_por_id(moto_id)
 
 
-def editar_moto(moto_id: int, marca: str, modelo: str, anio: int, color: str, cilindraje: int, precio: float) -> sqlite3.Row:
+def editar_moto(
+    moto_id: int, marca: str, modelo: str, anio: int, color: str, cilindraje: int, precio: float, moneda: str = "CRC"
+) -> sqlite3.Row:
     if moto_model.obtener_por_id(moto_id) is None:
         raise ValueError("La motocicleta indicada no existe.")
-    moto_model.actualizar(moto_id, marca.strip(), modelo.strip(), anio, color.strip(), cilindraje, precio)
+    moto_model.actualizar(moto_id, marca.strip(), modelo.strip(), anio, color.strip(), cilindraje, precio, moneda)
     return moto_model.obtener_por_id(moto_id)
 
 

@@ -33,7 +33,7 @@
             <td>{{ m['color'] or '—' }}</td>
             <td>{{ m['cilindraje'] or '—' }}</td>
             <td>{{ m['vin'] }}</td>
-            <td>{{ '%.2f'|format(m['precio']) }}</td>
+            <td>{{ m['precio']|moneda(m['moneda']) }}</td>
             <td><span class="badge badge-{{ m['estado'] }}">{{ m['estado'] }}</span></td>
             <td style="display:flex;gap:0.4rem;">
                 <a class="btn btn-secundario btn-pequeno" href="{{ url_for('inventario.editar', moto_id=m['id']) }}">Editar</a>

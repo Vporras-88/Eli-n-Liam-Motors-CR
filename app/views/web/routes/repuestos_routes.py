@@ -8,6 +8,7 @@ from app.controllers import repuesto_controller
 from app.models import repuesto as repuesto_model
 from app.models.repuesto import CATEGORIAS
 from app.utils import validators as v
+from app.utils.moneda import MONEDA_POR_DEFECTO, MONEDAS
 from app.views.web.auth import requiere_permiso
 
 bp = Blueprint("repuestos", __name__, url_prefix="/repuestos")
@@ -34,7 +35,7 @@ def nuevo():
         try:
             repuesto = repuesto_controller.crear_repuesto(
                 datos["nombre"], datos["categoria"], datos.get("marca_compatible", ""),
-                float(datos["precio"]), int(datos["stock"]), datos.get("proveedor", ""),
+                float(datos["precio"]), int(datos["stock"]), datos.get("proveedor", ""), _moneda(datos),
             )
             flash(f"'{repuesto['nombre']}' registrado con id {repuesto['id']}.", "exito")
             return redirect(url_for("repuestos.listar"))
@@ -61,7 +62,8 @@ def editar(repuesto_id):
             return render_template("repuestos/form.html", repuesto=fila, valores=datos, categorias=CATEGORIAS)
         try:
             repuesto_controller.editar_repuesto(
-                repuesto_id, datos["nombre"], datos.get("marca_compatible", ""), float(datos["precio"]), datos.get("proveedor", "")
+                repuesto_id, datos["nombre"], datos.get("marca_compatible", ""), float(datos["precio"]),
+                datos.get("proveedor", ""), _moneda(datos),
             )
             flash("Repuesto actualizado.", "exito")
             return redirect(url_for("repuestos.listar"))
@@ -103,6 +105,11 @@ def eliminar(repuesto_id):
     except sqlite3.IntegrityError:
         flash("No se puede eliminar: el repuesto tiene ventas u órdenes de taller asociadas.", "error")
     return redirect(url_for("repuestos.listar"))
+
+
+def _moneda(datos) -> str:
+    valor = datos.get("moneda", "").strip()
+    return valor if valor in MONEDAS else MONEDA_POR_DEFECTO
 
 
 def _validar(datos, requerir_categoria_stock: bool = True) -> list[str]:
