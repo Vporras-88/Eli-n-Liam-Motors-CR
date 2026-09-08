@@ -6,8 +6,9 @@ from app.controllers import auth_controller
 OPCIONES_MENU = [
     ("inventario", "Inventario", "inventario.listar"),
     ("clientes", "Clientes", "clientes.listar"),
-    ("ventas", "Ventas", "ventas.listar"),
+    ("ventas", "Venta de Motocicletas", "ventas.listar"),
     ("repuestos", "Repuestos y Accesorios", "repuestos.listar"),
+    ("ventas_repuestos", "Venta de Repuestos y Accesorios", "ventas_repuestos.listar"),
     ("taller", "Taller Mecánico", "taller.listar"),
     ("reportes", "Reportes", "reportes.ver"),
     ("usuarios", "Usuarios", "usuarios.listar"),

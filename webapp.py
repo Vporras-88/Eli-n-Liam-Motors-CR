@@ -27,8 +27,12 @@ def crear_app() -> Flask:
     from app.views.web.routes.taller_routes import bp as taller_bp
     from app.views.web.routes.usuarios_routes import bp as usuarios_bp
     from app.views.web.routes.ventas_routes import bp as ventas_bp
+    from app.views.web.routes.ventas_repuestos_routes import bp as ventas_repuestos_bp
 
-    for bp in (auth_bp, principal_bp, clientes_bp, inventario_bp, ventas_bp, repuestos_bp, taller_bp, usuarios_bp, reportes_bp):
+    for bp in (
+        auth_bp, principal_bp, clientes_bp, inventario_bp, ventas_bp, ventas_repuestos_bp,
+        repuestos_bp, taller_bp, usuarios_bp, reportes_bp,
+    ):
         app.register_blueprint(bp)
 
     @app.context_processor

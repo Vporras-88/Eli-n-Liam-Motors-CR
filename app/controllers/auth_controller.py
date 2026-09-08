@@ -7,8 +7,8 @@ from app.utils.security import verificar_password
 
 # Opciones de menú principal habilitadas para cada rol.
 PERMISOS_MENU = {
-    "admin": {"inventario", "clientes", "ventas", "repuestos", "taller", "reportes", "usuarios"},
-    "vendedor": {"inventario", "clientes", "ventas", "reportes"},
+    "admin": {"inventario", "clientes", "ventas", "repuestos", "ventas_repuestos", "taller", "reportes", "usuarios"},
+    "vendedor": {"inventario", "clientes", "ventas", "ventas_repuestos", "reportes"},
     "mecanico": {"repuestos", "taller", "reportes"},
 }
 

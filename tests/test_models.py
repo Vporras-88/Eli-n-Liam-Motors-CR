@@ -9,6 +9,7 @@ import app.models.orden_trabajo as orden_trabajo
 import app.models.repuesto as repuesto
 import app.models.usuario as usuario
 import app.models.venta as venta
+import app.models.venta_repuesto as venta_repuesto
 
 
 @pytest.fixture(autouse=True)
@@ -29,6 +30,7 @@ def bd_temporal(tmp_path, monkeypatch):
         "repuesto": repuesto,
         "usuario": usuario,
         "venta": venta,
+        "venta_repuesto": venta_repuesto,
     }
 
 
@@ -90,6 +92,24 @@ def test_repuesto_stock_no_negativo(bd_temporal):
 
     with pytest.raises(ValueError):
         repuesto.ajustar_stock(repuesto_id, -100)
+
+
+def test_venta_repuesto_registrar_descuenta_stock(bd_temporal):
+    repuesto = bd_temporal["repuesto"]
+    cliente = bd_temporal["cliente"]
+    usuario = bd_temporal["usuario"]
+    venta_repuesto = bd_temporal["venta_repuesto"]
+
+    repuesto_id = repuesto.crear("Casco integral", "accesorio", "Universal", 80.0, 5, "Proveedor Z")
+    cliente_id = cliente.crear("Ana Soto", "987654321", "", "", "")
+    admin = usuario.obtener_por_usuario("admin")
+
+    venta_id = venta_repuesto.registrar(repuesto_id, cliente_id, admin["id"], 2, 75.0, "contado")
+    assert venta_id is not None
+    assert repuesto.obtener_por_id(repuesto_id)["stock"] == 3
+
+    with pytest.raises(ValueError):
+        venta_repuesto.registrar(repuesto_id, cliente_id, admin["id"], 100, 75.0, "contado")
 
 
 def test_orden_trabajo_agregar_repuesto_descuenta_stock(bd_temporal):

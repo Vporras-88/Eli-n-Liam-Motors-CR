@@ -6,9 +6,11 @@ import app.models.database as database
 from app.controllers import (
     cliente_controller,
     inventario_controller,
+    repuesto_controller,
     taller_controller,
     usuario_controller,
     venta_controller,
+    venta_repuesto_controller,
 )
 
 
@@ -32,6 +34,14 @@ def test_no_se_puede_vender_moto_ya_vendida():
 
     with pytest.raises(ValueError):
         venta_controller.registrar_venta(moto["id"], cliente["id"], _admin_id(), 2400.0, "contado")
+
+
+def test_no_se_puede_vender_repuesto_sin_stock_suficiente():
+    repuesto = repuesto_controller.crear_repuesto("Cadena", "repuesto", "Universal", 30.0, 1, "Proveedor W")
+    cliente = cliente_controller.crear_cliente("Beto Jiménez", "404040404", "", "", "")
+
+    with pytest.raises(ValueError):
+        venta_repuesto_controller.registrar_venta(repuesto["id"], cliente["id"], _admin_id(), 5, 30.0, "contado")
 
 
 def test_no_se_permite_vin_duplicado():

@@ -67,6 +67,17 @@ CREATE TABLE IF NOT EXISTS repuestos (
     proveedor           TEXT
 );
 
+CREATE TABLE IF NOT EXISTS ventas_repuestos (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    repuesto_id     INTEGER NOT NULL REFERENCES repuestos(id),
+    cliente_id      INTEGER NOT NULL REFERENCES clientes(id),
+    vendedor_id     INTEGER NOT NULL REFERENCES usuarios(id),
+    fecha           TEXT NOT NULL,
+    cantidad        INTEGER NOT NULL,
+    precio_unitario REAL NOT NULL,
+    metodo_pago     TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS ordenes_trabajo (
     id                      INTEGER PRIMARY KEY AUTOINCREMENT,
     cliente_id              INTEGER NOT NULL REFERENCES clientes(id),

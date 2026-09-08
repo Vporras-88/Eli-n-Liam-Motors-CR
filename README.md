@@ -27,8 +27,9 @@ tests/              # Pruebas unitarias (pytest)
 - **Autenticación y Usuarios** (roles: `admin`, `vendedor`, `mecanico`)
 - **Clientes**
 - **Inventario de Motocicletas**
-- **Ventas**
+- **Venta de Motocicletas**
 - **Repuestos y Accesorios** (con control de stock)
+- **Venta de Repuestos y Accesorios**
 - **Taller Mecánico** (órdenes de trabajo, repuestos usados, costos)
 - **Reportes** básicos (ventas, órdenes de taller, stock bajo)
 
