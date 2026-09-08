@@ -3,6 +3,8 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.controllers import cliente_controller, repuesto_controller, taller_controller, usuario_controller
+from app.models import cliente as cliente_model
+from app.models import orden_trabajo as orden_model
 from app.models.orden_trabajo import ESTADOS
 from app.utils import validators as v
 from app.views.web.auth import requiere_permiso
@@ -73,6 +75,61 @@ def detalle(orden_id):
         "taller/detalle.html", orden=info["orden"], repuestos=info["repuestos"], costo_total=info["costo_total"],
         estados=ESTADOS, repuestos_disponibles=repuesto_controller.listar_repuestos(),
     )
+
+
+@bp.route("/<int:orden_id>/editar", methods=["GET", "POST"])
+@requiere_permiso("taller")
+def editar(orden_id):
+    fila = orden_model.obtener_por_id(orden_id)
+    if fila is None:
+        flash("La orden indicada no existe.", "error")
+        return redirect(url_for("taller.listar"))
+    mecanicos = usuario_controller.listar_mecanicos()
+    cliente = cliente_model.obtener_por_id(fila["cliente_id"])
+
+    if request.method == "POST":
+        datos = request.form
+        errores = []
+        ok, msg = v.validar_no_vacio(datos.get("moto_marca", ""), "Marca de la moto")
+        if not ok:
+            errores.append(msg)
+        ok, msg = v.validar_no_vacio(datos.get("moto_modelo", ""), "Modelo de la moto")
+        if not ok:
+            errores.append(msg)
+        ok, msg = v.validar_no_vacio(datos.get("descripcion_problema", ""), "Descripción del problema")
+        if not ok:
+            errores.append(msg)
+        ok, msg = v.validar_decimal_no_negativo(datos.get("costo_mano_obra", ""), "Costo de mano de obra")
+        if not ok:
+            errores.append(msg)
+        if errores:
+            for e in errores:
+                flash(e, "error")
+            return render_template("taller/editar.html", orden=fila, cliente=cliente, mecanicos=mecanicos, valores=datos)
+        try:
+            mecanico_id = int(datos["mecanico_id"]) if datos.get("mecanico_id") else None
+            taller_controller.editar_orden(
+                orden_id, datos["moto_marca"], datos["moto_modelo"], datos.get("moto_placa", ""),
+                mecanico_id, datos["descripcion_problema"], float(datos["costo_mano_obra"]),
+            )
+            flash("Orden actualizada.", "exito")
+            return redirect(url_for("taller.detalle", orden_id=orden_id))
+        except ValueError as e:
+            flash(str(e), "error")
+            return render_template("taller/editar.html", orden=fila, cliente=cliente, mecanicos=mecanicos, valores=datos)
+
+    return render_template("taller/editar.html", orden=fila, cliente=cliente, mecanicos=mecanicos, valores=dict(fila))
+
+
+@bp.route("/<int:orden_id>/eliminar", methods=["POST"])
+@requiere_permiso("taller")
+def eliminar(orden_id):
+    try:
+        taller_controller.eliminar_orden(orden_id)
+        flash("Orden eliminada. El stock de los repuestos usados fue restituido.", "exito")
+    except ValueError as e:
+        flash(str(e), "error")
+    return redirect(url_for("taller.listar"))
 
 
 @bp.route("/<int:orden_id>/estado", methods=["POST"])

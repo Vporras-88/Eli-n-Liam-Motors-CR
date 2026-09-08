@@ -3,7 +3,13 @@
 {% block contenido %}
 <div class="barra-acciones">
     <h1>Orden de Trabajo #{{ orden['id'] }}</h1>
-    <a class="btn btn-secundario" href="{{ url_for('taller.listar') }}">← Volver</a>
+    <div style="display:flex;gap:0.4rem;">
+        <a class="btn btn-secundario" href="{{ url_for('taller.editar', orden_id=orden['id']) }}">Editar</a>
+        <form class="form-en-linea" method="post" action="{{ url_for('taller.eliminar', orden_id=orden['id']) }}" onsubmit="return confirm('¿Eliminar esta orden? El stock de sus repuestos usados será restituido.');">
+            <button type="submit" class="btn btn-peligro">Eliminar</button>
+        </form>
+        <a class="btn btn-secundario" href="{{ url_for('taller.listar') }}">← Volver</a>
+    </div>
 </div>
 
 <div class="tarjeta">

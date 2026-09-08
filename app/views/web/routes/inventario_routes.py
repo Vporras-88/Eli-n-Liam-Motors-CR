@@ -1,5 +1,7 @@
 """Rutas del módulo de Inventario de Motocicletas."""
 
+import sqlite3
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.controllers import inventario_controller
@@ -72,7 +74,7 @@ def editar(moto_id):
             flash(str(e), "error")
             return render_template("inventario/form.html", moto=fila, valores=datos)
 
-    return render_template("inventario/form.html", moto=fila, valores=fila)
+    return render_template("inventario/form.html", moto=fila, valores=dict(fila))
 
 
 @bp.route("/<int:moto_id>/estado", methods=["POST"])
@@ -84,6 +86,19 @@ def cambiar_estado(moto_id):
         flash(f"Motocicleta id {moto['id']} ahora está '{moto['estado']}'.", "exito")
     except ValueError as e:
         flash(str(e), "error")
+    return redirect(url_for("inventario.listar"))
+
+
+@bp.route("/<int:moto_id>/eliminar", methods=["POST"])
+@requiere_permiso("inventario")
+def eliminar(moto_id):
+    try:
+        inventario_controller.eliminar_moto(moto_id)
+        flash("Motocicleta eliminada.", "exito")
+    except ValueError as e:
+        flash(str(e), "error")
+    except sqlite3.IntegrityError:
+        flash("No se puede eliminar: la motocicleta tiene ventas asociadas.", "error")
     return redirect(url_for("inventario.listar"))
 
 

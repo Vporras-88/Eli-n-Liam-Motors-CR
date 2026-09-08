@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Editar Orden — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Editar Orden de Trabajo #{{ orden['id'] }}</h1>
+<div class="tarjeta">
+    <p><strong>Cliente:</strong> {{ cliente['nombre'] if cliente else '—' }}</p>
+</div>
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="moto_marca">Marca de la moto</label>
+        <input type="text" id="moto_marca" name="moto_marca" value="{{ valores.get('moto_marca', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="moto_modelo">Modelo de la moto</label>
+        <input type="text" id="moto_modelo" name="moto_modelo" value="{{ valores.get('moto_modelo', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="moto_placa">Placa</label>
+        <input type="text" id="moto_placa" name="moto_placa" value="{{ valores.get('moto_placa', '') }}">
+    </div>
+    <div class="campo">
+        <label for="mecanico_id">Mecánico asignado</label>
+        <select id="mecanico_id" name="mecanico_id">
+            <option value="">— Sin asignar —</option>
+            {% for m in mecanicos %}
+            <option value="{{ m['id'] }}" {{ 'selected' if valores.get('mecanico_id')|string == m['id']|string else '' }}>{{ m['nombre'] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="campo">
+        <label for="descripcion_problema">Descripción del problema</label>
+        <textarea id="descripcion_problema" name="descripcion_problema" rows="3" required>{{ valores.get('descripcion_problema', '') }}</textarea>
+    </div>
+    <div class="campo">
+        <label for="costo_mano_obra">Costo de mano de obra</label>
+        <input type="number" step="0.01" id="costo_mano_obra" name="costo_mano_obra" value="{{ valores.get('costo_mano_obra', '') }}" required>
+    </div>
+    <div>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('taller.detalle', orden_id=orden['id']) }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

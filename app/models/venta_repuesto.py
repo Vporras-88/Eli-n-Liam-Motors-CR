@@ -30,6 +30,48 @@ def registrar(
         return cur.lastrowid
 
 
+def actualizar(venta_id: int, cantidad: int, precio_unitario: float, metodo_pago: str) -> None:
+    """Actualiza cantidad/precio/método y ajusta el stock por la diferencia de cantidad, en una sola transacción."""
+    with get_connection() as conn:
+        venta = conn.execute(
+            "SELECT repuesto_id, cantidad FROM ventas_repuestos WHERE id = ?", (venta_id,)
+        ).fetchone()
+        if venta is None:
+            raise ValueError("La venta indicada no existe.")
+
+        delta = cantidad - venta["cantidad"]
+        if delta != 0:
+            repuesto = conn.execute("SELECT stock FROM repuestos WHERE id = ?", (venta["repuesto_id"],)).fetchone()
+            if repuesto is None:
+                raise ValueError("El repuesto indicado no existe.")
+            if repuesto["stock"] < delta:
+                raise ValueError("No hay stock suficiente para esta cantidad.")
+            conn.execute(
+                "UPDATE repuestos SET stock = stock - ? WHERE id = ?", (delta, venta["repuesto_id"])
+            )
+
+        conn.execute(
+            "UPDATE ventas_repuestos SET cantidad = ?, precio_unitario = ?, metodo_pago = ? WHERE id = ?",
+            (cantidad, precio_unitario, metodo_pago, venta_id),
+        )
+        conn.commit()
+
+
+def eliminar(venta_id: int) -> None:
+    """Elimina la venta y devuelve la cantidad vendida al stock del repuesto."""
+    with get_connection() as conn:
+        venta = conn.execute(
+            "SELECT repuesto_id, cantidad FROM ventas_repuestos WHERE id = ?", (venta_id,)
+        ).fetchone()
+        if venta is None:
+            raise ValueError("La venta indicada no existe.")
+        conn.execute("DELETE FROM ventas_repuestos WHERE id = ?", (venta_id,))
+        conn.execute(
+            "UPDATE repuestos SET stock = stock + ? WHERE id = ?", (venta["cantidad"], venta["repuesto_id"])
+        )
+        conn.commit()
+
+
 def obtener_por_id(venta_id: int) -> sqlite3.Row | None:
     with get_connection() as conn:
         return conn.execute(

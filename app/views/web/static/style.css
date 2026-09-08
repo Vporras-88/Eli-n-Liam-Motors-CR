@@ -167,7 +167,10 @@ input, select, textarea {
 .btn:hover { background: var(--btn-metal-hover); }
 .btn-secundario { background: var(--gris); }
 .btn-secundario:hover { background: #333; }
+.btn-peligro { background: #a33; }
+.btn-peligro:hover { background: #822; }
 .btn-pequeno { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+.form-en-linea { display: inline; }
 
 .barra-acciones {
     display: flex;

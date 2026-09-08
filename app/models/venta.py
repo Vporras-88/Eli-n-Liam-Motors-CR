@@ -28,6 +28,29 @@ def registrar(moto_id: int, cliente_id: int, vendedor_id: int, precio_final: flo
         return cur.lastrowid
 
 
+def actualizar(venta_id: int, precio_final: float, metodo_pago: str) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ventas SET precio_final = ?, metodo_pago = ? WHERE id = ?",
+            (precio_final, metodo_pago, venta_id),
+        )
+        conn.commit()
+
+
+def eliminar(venta_id: int) -> None:
+    """Elimina la venta y, si la moto sigue marcada como vendida, la vuelve a dejar disponible."""
+    with get_connection() as conn:
+        venta = conn.execute("SELECT moto_id FROM ventas WHERE id = ?", (venta_id,)).fetchone()
+        if venta is None:
+            raise ValueError("La venta indicada no existe.")
+        conn.execute("DELETE FROM ventas WHERE id = ?", (venta_id,))
+        conn.execute(
+            "UPDATE motocicletas SET estado = 'disponible' WHERE id = ? AND estado = 'vendida'",
+            (venta["moto_id"],),
+        )
+        conn.commit()
+
+
 def obtener_por_id(venta_id: int) -> sqlite3.Row | None:
     with get_connection() as conn:
         return conn.execute(

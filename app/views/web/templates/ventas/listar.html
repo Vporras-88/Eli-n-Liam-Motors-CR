@@ -9,7 +9,7 @@
 <div class="tabla-wrap">
 <table>
     <thead>
-        <tr><th>ID</th><th>Fecha</th><th>Moto</th><th>VIN</th><th>Cliente</th><th>Vendedor</th><th>Precio</th><th>Método de pago</th></tr>
+        <tr><th>ID</th><th>Fecha</th><th>Moto</th><th>VIN</th><th>Cliente</th><th>Vendedor</th><th>Precio</th><th>Método de pago</th><th></th></tr>
     </thead>
     <tbody>
         {% for v in ventas %}
@@ -22,9 +22,15 @@
             <td>{{ v['vendedor_nombre'] }}</td>
             <td>{{ '%.2f'|format(v['precio_final']) }}</td>
             <td>{{ v['metodo_pago'] }}</td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('ventas.editar', venta_id=v['id']) }}">Editar</a>
+                <form class="form-en-linea" method="post" action="{{ url_for('ventas.eliminar', venta_id=v['id']) }}" onsubmit="return confirm('¿Eliminar esta venta? La motocicleta volverá a estar disponible.');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% else %}
-        <tr><td colspan="8"><em>Todavía no hay ventas registradas.</em></td></tr>
+        <tr><td colspan="9"><em>Todavía no hay ventas registradas.</em></td></tr>
         {% endfor %}
     </tbody>
 </table>

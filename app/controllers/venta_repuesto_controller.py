@@ -22,6 +22,22 @@ def registrar_venta(
     return venta_repuesto_model.obtener_por_id(venta_id)
 
 
+def editar_venta(venta_id: int, cantidad: int, precio_unitario: float, metodo_pago: str) -> sqlite3.Row:
+    if metodo_pago not in METODOS_PAGO:
+        raise ValueError(f"Método de pago inválido. Debe ser uno de: {', '.join(METODOS_PAGO)}.")
+    if venta_repuesto_model.obtener_por_id(venta_id) is None:
+        raise ValueError("La venta indicada no existe.")
+    # venta_repuesto_model.actualizar valida atómicamente que haya stock suficiente para el nuevo total.
+    venta_repuesto_model.actualizar(venta_id, cantidad, precio_unitario, metodo_pago)
+    return venta_repuesto_model.obtener_por_id(venta_id)
+
+
+def eliminar_venta(venta_id: int) -> None:
+    if venta_repuesto_model.obtener_por_id(venta_id) is None:
+        raise ValueError("La venta indicada no existe.")
+    venta_repuesto_model.eliminar(venta_id)
+
+
 def listar_ventas(desde: str | None = None, hasta: str | None = None, vendedor_id: int | None = None) -> list[sqlite3.Row]:
     return venta_repuesto_model.listar(desde=desde, hasta=hasta, vendedor_id=vendedor_id)
 

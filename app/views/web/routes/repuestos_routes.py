@@ -1,5 +1,7 @@
 """Rutas del módulo de Repuestos y Accesorios."""
 
+import sqlite3
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.controllers import repuesto_controller
@@ -67,7 +69,7 @@ def editar(repuesto_id):
             flash(str(e), "error")
             return render_template("repuestos/form.html", repuesto=fila, valores=datos, categorias=CATEGORIAS)
 
-    return render_template("repuestos/form.html", repuesto=fila, valores=fila, categorias=CATEGORIAS)
+    return render_template("repuestos/form.html", repuesto=fila, valores=dict(fila), categorias=CATEGORIAS)
 
 
 @bp.route("/<int:repuesto_id>/stock", methods=["POST"])
@@ -87,6 +89,19 @@ def mover_stock(repuesto_id):
         flash(f"Stock de '{repuesto['nombre']}' actualizado a {repuesto['stock']} unidades.", "exito")
     except ValueError as e:
         flash(str(e), "error")
+    return redirect(url_for("repuestos.listar"))
+
+
+@bp.route("/<int:repuesto_id>/eliminar", methods=["POST"])
+@requiere_permiso("repuestos")
+def eliminar(repuesto_id):
+    try:
+        repuesto_controller.eliminar_repuesto(repuesto_id)
+        flash("Repuesto eliminado.", "exito")
+    except ValueError as e:
+        flash(str(e), "error")
+    except sqlite3.IntegrityError:
+        flash("No se puede eliminar: el repuesto tiene ventas u órdenes de taller asociadas.", "error")
     return redirect(url_for("repuestos.listar"))
 
 

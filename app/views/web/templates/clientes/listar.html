@@ -26,7 +26,12 @@
             <td>{{ c['telefono'] or '—' }}</td>
             <td>{{ c['email'] or '—' }}</td>
             <td>{{ c['direccion'] or '—' }}</td>
-            <td><a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.editar', cliente_id=c['id']) }}">Editar</a></td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.editar', cliente_id=c['id']) }}">Editar</a>
+                <form class="form-en-linea" method="post" action="{{ url_for('clientes.eliminar', cliente_id=c['id']) }}" onsubmit="return confirm('¿Eliminar a {{ c['nombre'] }}? Esta acción no se puede deshacer.');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% else %}
         <tr><td colspan="7"><em>No hay clientes registrados.</em></td></tr>

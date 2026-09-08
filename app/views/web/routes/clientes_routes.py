@@ -1,5 +1,7 @@
 """Rutas del módulo de Clientes."""
 
+import sqlite3
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.controllers import cliente_controller
@@ -65,7 +67,20 @@ def editar(cliente_id):
             flash(str(e), "error")
             return render_template("clientes/form.html", cliente=fila, valores=datos)
 
-    return render_template("clientes/form.html", cliente=fila, valores=fila)
+    return render_template("clientes/form.html", cliente=fila, valores=dict(fila))
+
+
+@bp.route("/<int:cliente_id>/eliminar", methods=["POST"])
+@requiere_permiso("clientes")
+def eliminar(cliente_id):
+    try:
+        cliente_controller.eliminar_cliente(cliente_id)
+        flash("Cliente eliminado.", "exito")
+    except ValueError as e:
+        flash(str(e), "error")
+    except sqlite3.IntegrityError:
+        flash("No se puede eliminar: el cliente tiene ventas u órdenes de taller asociadas.", "error")
+    return redirect(url_for("clientes.listar"))
 
 
 def _validar(datos, requerir_cedula: bool) -> list[str]:

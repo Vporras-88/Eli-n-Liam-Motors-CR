@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Editar Venta de Repuesto — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Editar Venta #{{ venta['id'] }}</h1>
+<div class="tarjeta">
+    <p><strong>Producto:</strong> {{ venta['repuesto_nombre'] }} ({{ venta['categoria'] }})</p>
+    <p><strong>Cliente:</strong> {{ venta['cliente_nombre'] }}</p>
+</div>
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="cantidad">Cantidad</label>
+        <input type="number" step="1" min="1" id="cantidad" name="cantidad" value="{{ valores.get('cantidad', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="precio_unitario">Precio unitario</label>
+        <input type="number" step="0.01" id="precio_unitario" name="precio_unitario" value="{{ valores.get('precio_unitario', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="metodo_pago">Método de pago</label>
+        <select id="metodo_pago" name="metodo_pago" required>
+            {% for met in metodos %}
+            <option value="{{ met }}" {{ 'selected' if valores.get('metodo_pago') == met else '' }}>{{ met }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('ventas_repuestos.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}
