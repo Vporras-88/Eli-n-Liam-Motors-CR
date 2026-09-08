@@ -15,14 +15,16 @@ def crear(
     mecanico_id: int | None,
     descripcion_problema: str,
     costo_mano_obra: float,
+    moneda_mano_obra: str = "CRC",
 ) -> int:
     with get_connection() as conn:
         cur = conn.execute(
             """INSERT INTO ordenes_trabajo
                (cliente_id, moto_marca, moto_modelo, moto_placa, mecanico_id,
-                descripcion_problema, estado, costo_mano_obra, fecha_ingreso)
-               VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, datetime('now', 'localtime'))""",
-            (cliente_id, moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema, costo_mano_obra),
+                descripcion_problema, estado, costo_mano_obra, moneda_mano_obra, fecha_ingreso)
+               VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, datetime('now', 'localtime'))""",
+            (cliente_id, moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema,
+             costo_mano_obra, moneda_mano_obra),
         )
         conn.commit()
         return cur.lastrowid
@@ -49,6 +51,43 @@ def listar(estado: str | None = None) -> list[sqlite3.Row]:
         return conn.execute(query, params).fetchall()
 
 
+def actualizar(
+    orden_id: int,
+    moto_marca: str,
+    moto_modelo: str,
+    moto_placa: str,
+    mecanico_id: int | None,
+    descripcion_problema: str,
+    costo_mano_obra: float,
+    moneda_mano_obra: str = "CRC",
+) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            """UPDATE ordenes_trabajo
+               SET moto_marca = ?, moto_modelo = ?, moto_placa = ?, mecanico_id = ?,
+                   descripcion_problema = ?, costo_mano_obra = ?, moneda_mano_obra = ?
+               WHERE id = ?""",
+            (moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema,
+             costo_mano_obra, moneda_mano_obra, orden_id),
+        )
+        conn.commit()
+
+
+def eliminar(orden_id: int) -> None:
+    """Elimina la orden y sus repuestos usados, devolviendo esas unidades al stock."""
+    with get_connection() as conn:
+        usados = conn.execute(
+            "SELECT repuesto_id, cantidad FROM orden_repuestos WHERE orden_id = ?", (orden_id,)
+        ).fetchall()
+        for u in usados:
+            conn.execute(
+                "UPDATE repuestos SET stock = stock + ? WHERE id = ?", (u["cantidad"], u["repuesto_id"])
+            )
+        conn.execute("DELETE FROM orden_repuestos WHERE orden_id = ?", (orden_id,))
+        conn.execute("DELETE FROM ordenes_trabajo WHERE id = ?", (orden_id,))
+        conn.commit()
+
+
 def cambiar_estado(orden_id: int, estado: str) -> None:
     with get_connection() as conn:
         if estado == "entregada":
@@ -64,16 +103,16 @@ def cambiar_estado(orden_id: int, estado: str) -> None:
 def agregar_repuesto(orden_id: int, repuesto_id: int, cantidad: int) -> None:
     """Registra el uso de un repuesto en la orden y descuenta su stock, en una sola transacción."""
     with get_connection() as conn:
-        repuesto = conn.execute("SELECT precio, stock FROM repuestos WHERE id = ?", (repuesto_id,)).fetchone()
+        repuesto = conn.execute("SELECT precio, moneda, stock FROM repuestos WHERE id = ?", (repuesto_id,)).fetchone()
         if repuesto is None:
             raise ValueError("El repuesto indicado no existe.")
         if repuesto["stock"] < cantidad:
             raise ValueError(f"Stock insuficiente: disponible {repuesto['stock']}, solicitado {cantidad}.")
 
         conn.execute(
-            """INSERT INTO orden_repuestos (orden_id, repuesto_id, cantidad, precio_unitario)
-               VALUES (?, ?, ?, ?)""",
-            (orden_id, repuesto_id, cantidad, repuesto["precio"]),
+            """INSERT INTO orden_repuestos (orden_id, repuesto_id, cantidad, precio_unitario, moneda)
+               VALUES (?, ?, ?, ?, ?)""",
+            (orden_id, repuesto_id, cantidad, repuesto["precio"], repuesto["moneda"]),
         )
         conn.execute(
             "UPDATE repuestos SET stock = stock - ? WHERE id = ?",

@@ -74,3 +74,24 @@ def test_taller_transicion_estado_invalida():
 
     orden = taller_controller.cambiar_estado_orden(orden["id"], "en_proceso")
     assert orden["estado"] == "en_proceso"
+
+
+def test_editar_venta_rechaza_metodo_pago_invalido():
+    moto = inventario_controller.crear_moto("Bera", "SBR", 2022, "Negro", 200, "VIN-EDIT-1", 1800.0)
+    cliente = cliente_controller.crear_cliente("Rita Campos", "707070707", "", "", "")
+    venta = venta_controller.registrar_venta(moto["id"], cliente["id"], _admin_id(), 1700.0, "contado")
+
+    with pytest.raises(ValueError):
+        venta_controller.editar_venta(venta["id"], 1700.0, "criptomoneda")
+
+
+def test_eliminar_venta_deja_moto_disponible_de_nuevo():
+    moto = inventario_controller.crear_moto("Bera", "SBR", 2022, "Negro", 200, "VIN-EDIT-2", 1800.0)
+    cliente = cliente_controller.crear_cliente("Rita Campos", "808080808", "", "", "")
+    venta = venta_controller.registrar_venta(moto["id"], cliente["id"], _admin_id(), 1700.0, "contado")
+
+    venta_controller.eliminar_venta(venta["id"])
+
+    from app.models import motocicleta as moto_model
+
+    assert moto_model.obtener_por_id(moto["id"])["estado"] == "disponible"

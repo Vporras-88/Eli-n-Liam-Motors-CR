@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 {% block titulo %}Menú Principal — Elián-Liam Motors CR{% endblock %}
 {% block contenido %}
-<h1>Bienvenido/a, {{ usuario['nombre'] }}</h1>
+<section class="bienvenida-hero">
+    <div class="bienvenida-texto">
+        <h1>Bienvenido/a, {{ usuario['nombre'] }}</h1>
+        <p>Tu agencia multimarca de <strong>motocicletas</strong> y <strong>cuadraciclos</strong>. Seleccione un módulo para continuar.</p>
+    </div>
+    <div class="bienvenida-ilustraciones">
+        <img src="{{ url_for('static', filename='banner-bienvenida.jpg') }}" alt="Elián-Liam Motors CR — motocicletas y cuadraciclos" class="bienvenida-banner">
+    </div>
+</section>
+
 <p>Seleccione un módulo:</p>
-<div class="tarjetas-resumen">
+<div class="tarjetas-resumen menu-modulos">
     {% for clave, etiqueta, endpoint in opciones %}
-    <a class="tarjeta" style="text-decoration:none;color:inherit;display:block" href="{{ url_for(endpoint) }}">
+    <a class="tarjeta-modulo" href="{{ url_for(endpoint) }}">
         <h3>{{ etiqueta }}</h3>
         <span class="valor">→</span>
     </a>

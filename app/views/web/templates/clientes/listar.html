@@ -3,7 +3,11 @@
 {% block contenido %}
 <div class="barra-acciones">
     <h1>Clientes</h1>
-    <a class="btn" href="{{ url_for('clientes.nuevo') }}">+ Agregar cliente</a>
+    <div style="display:flex;gap:0.5rem;">
+        <a class="btn btn-secundario" href="{{ url_for('clientes.financieras') }}">Financieras</a>
+        <a class="btn btn-secundario" href="{{ url_for('clientes.vendedores') }}">Vendedores</a>
+        <a class="btn" href="{{ url_for('clientes.nuevo') }}">+ Agregar cliente</a>
+    </div>
 </div>
 
 <form class="filtros" method="get">
@@ -15,7 +19,7 @@
 <div class="tabla-wrap">
 <table>
     <thead>
-        <tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th></th></tr>
+        <tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Financiera</th><th>Estado</th><th>Vendedor</th><th></th></tr>
     </thead>
     <tbody>
         {% for c in clientes %}
@@ -26,10 +30,24 @@
             <td>{{ c['telefono'] or '—' }}</td>
             <td>{{ c['email'] or '—' }}</td>
             <td>{{ c['direccion'] or '—' }}</td>
-            <td><a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.editar', cliente_id=c['id']) }}">Editar</a></td>
+            <td>{{ c['financiera_nombre'] or '—' }}</td>
+            <td>
+                {% if c['estado_financiamiento'] %}
+                <span class="badge badge-fin-{{ c['estado_financiamiento'] }}">{{ c['estado_financiamiento']|capitalize }}</span>
+                {% else %}
+                —
+                {% endif %}
+            </td>
+            <td>{{ c['vendedor_nombre'] or '—' }}</td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.editar', cliente_id=c['id']) }}">Editar</a>
+                <form class="form-en-linea" method="post" action="{{ url_for('clientes.eliminar', cliente_id=c['id']) }}" onsubmit="return confirm('¿Eliminar a {{ c['nombre'] }}? Esta acción no se puede deshacer.');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% else %}
-        <tr><td colspan="7"><em>No hay clientes registrados.</em></td></tr>
+        <tr><td colspan="10"><em>No hay clientes registrados.</em></td></tr>
         {% endfor %}
     </tbody>
 </table>

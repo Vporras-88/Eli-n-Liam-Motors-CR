@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block titulo %}Repuestos y Accesorios — Elián-Liam Motors CR{% endblock %}
+{% block titulo %}Inventario de Repuestos y Accesorios — Elián-Liam Motors CR{% endblock %}
 {% block contenido %}
 <div class="barra-acciones">
-    <h1>Repuestos y Accesorios</h1>
+    <h1>Inventario de Repuestos y Accesorios</h1>
     <a class="btn" href="{{ url_for('repuestos.nuevo') }}">+ Agregar repuesto/accesorio</a>
 </div>
 
@@ -15,16 +15,23 @@
 <div class="tabla-wrap">
 <table>
     <thead>
-        <tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Marca compatible</th><th>Precio</th><th>Stock</th><th>Proveedor</th><th></th></tr>
+        <tr><th>Imagen</th><th>ID</th><th>Nombre</th><th>Categoría</th><th>Marca compatible</th><th>Precio</th><th>Stock</th><th>Proveedor</th><th></th></tr>
     </thead>
     <tbody>
         {% for r in repuestos %}
         <tr>
+            <td>
+                {% if r['imagen'] %}
+                <img src="{{ url_for('static', filename=r['imagen']) }}" alt="{{ r['nombre'] }}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--borde);">
+                {% else %}
+                <span style="color:var(--gris);">—</span>
+                {% endif %}
+            </td>
             <td>{{ r['id'] }}</td>
             <td>{{ r['nombre'] }}</td>
             <td>{{ r['categoria'] }}</td>
             <td>{{ r['marca_compatible'] or '—' }}</td>
-            <td>{{ '%.2f'|format(r['precio']) }}</td>
+            <td>{{ r['precio']|moneda(r['moneda']) }}</td>
             <td>{{ r['stock'] }}</td>
             <td>{{ r['proveedor'] or '—' }}</td>
             <td style="display:flex;gap:0.4rem;">
@@ -40,10 +47,13 @@
                         <button type="submit" class="btn btn-pequeno">OK</button>
                     </form>
                 </details>
+                <form class="form-en-linea" method="post" action="{{ url_for('repuestos.eliminar', repuesto_id=r['id']) }}" onsubmit="return confirm('¿Eliminar {{ r['nombre'] }}? Esta acción no se puede deshacer.');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
             </td>
         </tr>
         {% else %}
-        <tr><td colspan="8"><em>{{ 'No hay repuestos con stock bajo.' if solo_bajo else 'No hay repuestos/accesorios registrados.' }}</em></td></tr>
+        <tr><td colspan="9"><em>{{ 'No hay repuestos con stock bajo.' if solo_bajo else 'No hay repuestos/accesorios registrados.' }}</em></td></tr>
         {% endfor %}
     </tbody>
 </table>

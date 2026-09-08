@@ -10,7 +10,9 @@ import sqlite3
 from app.models.database import get_connection
 
 
-def registrar(moto_id: int, cliente_id: int, vendedor_id: int, precio_final: float, metodo_pago: str) -> int:
+def registrar(
+    moto_id: int, cliente_id: int, vendedor_id: int, precio_final: float, metodo_pago: str, moneda: str = "CRC"
+) -> int:
     with get_connection() as conn:
         moto = conn.execute("SELECT estado FROM motocicletas WHERE id = ?", (moto_id,)).fetchone()
         if moto is None:
@@ -19,13 +21,36 @@ def registrar(moto_id: int, cliente_id: int, vendedor_id: int, precio_final: flo
             raise ValueError("La motocicleta ya no está disponible para la venta.")
 
         cur = conn.execute(
-            """INSERT INTO ventas (moto_id, cliente_id, vendedor_id, fecha, precio_final, metodo_pago)
-               VALUES (?, ?, ?, datetime('now', 'localtime'), ?, ?)""",
-            (moto_id, cliente_id, vendedor_id, precio_final, metodo_pago),
+            """INSERT INTO ventas (moto_id, cliente_id, vendedor_id, fecha, precio_final, moneda, metodo_pago)
+               VALUES (?, ?, ?, datetime('now', 'localtime'), ?, ?, ?)""",
+            (moto_id, cliente_id, vendedor_id, precio_final, moneda, metodo_pago),
         )
         conn.execute("UPDATE motocicletas SET estado = 'vendida' WHERE id = ?", (moto_id,))
         conn.commit()
         return cur.lastrowid
+
+
+def actualizar(venta_id: int, precio_final: float, metodo_pago: str, moneda: str = "CRC") -> None:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ventas SET precio_final = ?, moneda = ?, metodo_pago = ? WHERE id = ?",
+            (precio_final, moneda, metodo_pago, venta_id),
+        )
+        conn.commit()
+
+
+def eliminar(venta_id: int) -> None:
+    """Elimina la venta y, si la moto sigue marcada como vendida, la vuelve a dejar disponible."""
+    with get_connection() as conn:
+        venta = conn.execute("SELECT moto_id FROM ventas WHERE id = ?", (venta_id,)).fetchone()
+        if venta is None:
+            raise ValueError("La venta indicada no existe.")
+        conn.execute("DELETE FROM ventas WHERE id = ?", (venta_id,))
+        conn.execute(
+            "UPDATE motocicletas SET estado = 'disponible' WHERE id = ? AND estado = 'vendida'",
+            (venta["moto_id"],),
+        )
+        conn.commit()
 
 
 def obtener_por_id(venta_id: int) -> sqlite3.Row | None:

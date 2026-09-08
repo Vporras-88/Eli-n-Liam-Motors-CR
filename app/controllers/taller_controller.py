@@ -23,6 +23,7 @@ def crear_orden(
     mecanico_id: int | None,
     descripcion_problema: str,
     costo_mano_obra: float,
+    moneda_mano_obra: str = "CRC",
 ) -> sqlite3.Row:
     if cliente_model.obtener_por_id(cliente_id) is None:
         raise ValueError("El cliente indicado no existe.")
@@ -32,9 +33,38 @@ def crear_orden(
             raise ValueError("El mecánico indicado no existe o no tiene el rol adecuado.")
     orden_id = orden_model.crear(
         cliente_id, moto_marca.strip(), moto_modelo.strip(), moto_placa.strip(),
-        mecanico_id, descripcion_problema.strip(), costo_mano_obra,
+        mecanico_id, descripcion_problema.strip(), costo_mano_obra, moneda_mano_obra,
     )
     return orden_model.obtener_por_id(orden_id)
+
+
+def editar_orden(
+    orden_id: int,
+    moto_marca: str,
+    moto_modelo: str,
+    moto_placa: str,
+    mecanico_id: int | None,
+    descripcion_problema: str,
+    costo_mano_obra: float,
+    moneda_mano_obra: str = "CRC",
+) -> sqlite3.Row:
+    if orden_model.obtener_por_id(orden_id) is None:
+        raise ValueError("La orden indicada no existe.")
+    if mecanico_id is not None:
+        mecanico = usuario_model.obtener_por_id(mecanico_id)
+        if mecanico is None or mecanico["rol"] != "mecanico":
+            raise ValueError("El mecánico indicado no existe o no tiene el rol adecuado.")
+    orden_model.actualizar(
+        orden_id, moto_marca.strip(), moto_modelo.strip(), moto_placa.strip(), mecanico_id,
+        descripcion_problema.strip(), costo_mano_obra, moneda_mano_obra,
+    )
+    return orden_model.obtener_por_id(orden_id)
+
+
+def eliminar_orden(orden_id: int) -> None:
+    if orden_model.obtener_por_id(orden_id) is None:
+        raise ValueError("La orden indicada no existe.")
+    orden_model.eliminar(orden_id)
 
 
 def cambiar_estado_orden(orden_id: int, nuevo_estado: str) -> sqlite3.Row:

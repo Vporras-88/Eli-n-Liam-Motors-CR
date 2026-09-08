@@ -11,7 +11,7 @@
     <thead>
         <tr>
             <th>ID</th><th>Fecha</th><th>Producto</th><th>Categoría</th><th>Cliente</th>
-            <th>Vendedor</th><th>Cantidad</th><th>Precio unitario</th><th>Total</th><th>Método de pago</th>
+            <th>Vendedor</th><th>Cantidad</th><th>Precio unitario</th><th>Total</th><th>Método de pago</th><th></th>
         </tr>
     </thead>
     <tbody>
@@ -24,12 +24,18 @@
             <td>{{ v['cliente_nombre'] }}</td>
             <td>{{ v['vendedor_nombre'] }}</td>
             <td>{{ v['cantidad'] }}</td>
-            <td>{{ '%.2f'|format(v['precio_unitario']) }}</td>
-            <td>{{ '%.2f'|format(v['cantidad'] * v['precio_unitario']) }}</td>
+            <td>{{ v['precio_unitario']|moneda(v['moneda']) }}</td>
+            <td>{{ (v['cantidad'] * v['precio_unitario'])|moneda(v['moneda']) }}</td>
             <td>{{ v['metodo_pago'] }}</td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('ventas_repuestos.editar', venta_id=v['id']) }}">Editar</a>
+                <form class="form-en-linea" method="post" action="{{ url_for('ventas_repuestos.eliminar', venta_id=v['id']) }}" onsubmit="return confirm('¿Eliminar esta venta? El stock del repuesto será restituido.');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% else %}
-        <tr><td colspan="10"><em>Todavía no hay ventas de repuestos o accesorios registradas.</em></td></tr>
+        <tr><td colspan="11"><em>Todavía no hay ventas de repuestos o accesorios registradas.</em></td></tr>
         {% endfor %}
     </tbody>
 </table>

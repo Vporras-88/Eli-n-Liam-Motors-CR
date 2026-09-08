@@ -28,6 +28,39 @@
         <label for="direccion">Dirección</label>
         <input type="text" id="direccion" name="direccion" value="{{ valores.get('direccion', '') if valores else '' }}">
     </div>
+    <div class="campo">
+        <label for="financiera_id">Financiera</label>
+        <div style="display:flex;gap:0.4rem;">
+            <select id="financiera_id" name="financiera_id" style="flex:1;">
+                <option value="">— Ninguna —</option>
+                {% for f in financieras %}
+                <option value="{{ f['id'] }}" {{ 'selected' if valores.get('financiera_id')|string == f['id']|string else '' }}>{{ f['nombre'] }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.financieras') }}" target="_blank" title="Agregar una nueva financiera en una pestaña aparte">+ Nueva</a>
+        </div>
+    </div>
+    <div class="campo">
+        <label for="estado_financiamiento">Estado del financiamiento</label>
+        <select id="estado_financiamiento" name="estado_financiamiento">
+            <option value="" {{ 'selected' if not valores.get('estado_financiamiento') else '' }}>— Sin definir —</option>
+            <option value="pendiente" {{ 'selected' if valores.get('estado_financiamiento') == 'pendiente' else '' }}>Pendiente</option>
+            <option value="aprobado" {{ 'selected' if valores.get('estado_financiamiento') == 'aprobado' else '' }}>Aprobado</option>
+            <option value="rechazado" {{ 'selected' if valores.get('estado_financiamiento') == 'rechazado' else '' }}>Rechazado</option>
+        </select>
+    </div>
+    <div class="campo">
+        <label for="vendedor_id">Vendedor</label>
+        <div style="display:flex;gap:0.4rem;">
+            <select id="vendedor_id" name="vendedor_id" style="flex:1;">
+                <option value="">— Ninguno —</option>
+                {% for vend in vendedores %}
+                <option value="{{ vend['id'] }}" {{ 'selected' if valores.get('vendedor_id')|string == vend['id']|string else '' }}>{{ vend['nombre'] }}</option>
+                {% endfor %}
+            </select>
+            <a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.vendedores') }}" target="_blank" title="Agregar un nuevo vendedor en una pestaña aparte">+ Nuevo</a>
+        </div>
+    </div>
     <div>
         <button type="submit" class="btn">Guardar</button>
         <a class="btn btn-secundario" href="{{ url_for('clientes.listar') }}">Cancelar</a>

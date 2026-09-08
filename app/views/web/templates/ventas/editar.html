@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Editar Venta — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Editar Venta #{{ venta['id'] }}</h1>
+<div class="tarjeta">
+    <p><strong>Motocicleta:</strong> {{ venta['marca'] }} {{ venta['modelo'] }} (VIN {{ venta['vin'] }})</p>
+    <p><strong>Cliente:</strong> {{ venta['cliente_nombre'] }}</p>
+</div>
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="precio_final">Precio final</label>
+        <div style="display:flex;gap:0.4rem;">
+            <input type="number" step="0.01" id="precio_final" name="precio_final" value="{{ valores.get('precio_final', '') }}" required style="flex:1;">
+            <select name="moneda" style="flex:0 0 auto;">
+                {% for cod, etiqueta in MONEDAS.items() %}
+                <option value="{{ cod }}" {{ 'selected' if valores.get('moneda', 'CRC') == cod else '' }}>{{ etiqueta }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="campo">
+        <label for="metodo_pago">Método de pago</label>
+        <select id="metodo_pago" name="metodo_pago" required>
+            {% for met in metodos %}
+            <option value="{{ met }}" {{ 'selected' if valores.get('metodo_pago') == met else '' }}>{{ met }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('ventas.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

@@ -1,11 +1,14 @@
 """Rutas del módulo de Inventario de Motocicletas."""
 
+import sqlite3
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.controllers import inventario_controller
 from app.models import motocicleta as moto_model
 from app.models.motocicleta import ESTADOS
 from app.utils import validators as v
+from app.utils.moneda import MONEDA_POR_DEFECTO, MONEDAS
 from app.views.web.auth import requiere_permiso
 
 bp = Blueprint("inventario", __name__, url_prefix="/inventario")
@@ -36,7 +39,7 @@ def nuevo():
         try:
             moto = inventario_controller.crear_moto(
                 datos["marca"], datos["modelo"], int(datos["anio"]), datos.get("color", ""),
-                int(datos["cilindraje"]), datos["vin"], float(datos["precio"]),
+                int(datos["cilindraje"]), datos["vin"], float(datos["precio"]), _moneda(datos),
             )
             flash(f"Motocicleta {moto['marca']} {moto['modelo']} registrada con id {moto['id']}.", "exito")
             return redirect(url_for("inventario.listar"))
@@ -64,7 +67,7 @@ def editar(moto_id):
         try:
             inventario_controller.editar_moto(
                 moto_id, datos["marca"], datos["modelo"], int(datos["anio"]), datos.get("color", ""),
-                int(datos["cilindraje"]), float(datos["precio"]),
+                int(datos["cilindraje"]), float(datos["precio"]), _moneda(datos),
             )
             flash("Motocicleta actualizada.", "exito")
             return redirect(url_for("inventario.listar"))
@@ -72,7 +75,7 @@ def editar(moto_id):
             flash(str(e), "error")
             return render_template("inventario/form.html", moto=fila, valores=datos)
 
-    return render_template("inventario/form.html", moto=fila, valores=fila)
+    return render_template("inventario/form.html", moto=fila, valores=dict(fila))
 
 
 @bp.route("/<int:moto_id>/estado", methods=["POST"])
@@ -85,6 +88,24 @@ def cambiar_estado(moto_id):
     except ValueError as e:
         flash(str(e), "error")
     return redirect(url_for("inventario.listar"))
+
+
+@bp.route("/<int:moto_id>/eliminar", methods=["POST"])
+@requiere_permiso("inventario")
+def eliminar(moto_id):
+    try:
+        inventario_controller.eliminar_moto(moto_id)
+        flash("Motocicleta eliminada.", "exito")
+    except ValueError as e:
+        flash(str(e), "error")
+    except sqlite3.IntegrityError:
+        flash("No se puede eliminar: la motocicleta tiene ventas asociadas.", "error")
+    return redirect(url_for("inventario.listar"))
+
+
+def _moneda(datos) -> str:
+    valor = datos.get("moneda", "").strip()
+    return valor if valor in MONEDAS else MONEDA_POR_DEFECTO
 
 
 def _validar(datos, requerir_vin: bool = True) -> list[str]:

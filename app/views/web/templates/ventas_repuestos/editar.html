@@ -1,35 +1,13 @@
 {% extends "base.html" %}
-{% block titulo %}Registrar Venta de Repuesto — Elián-Liam Motors CR{% endblock %}
+{% block titulo %}Editar Venta de Repuesto — Elián-Liam Motors CR{% endblock %}
 {% block contenido %}
-<h1>Registrar Venta de Repuesto o Accesorio</h1>
-
-{% if not repuestos %}
-<p><em>No hay repuestos ni accesorios con stock disponible para vender.</em></p>
-{% else %}
+<h1>Editar Venta #{{ venta['id'] }}</h1>
+<div class="tarjeta">
+    <p><strong>Producto:</strong> {{ venta['repuesto_nombre'] }} ({{ venta['categoria'] }})</p>
+    <p><strong>Cliente:</strong> {{ venta['cliente_nombre'] }}</p>
+</div>
 <div class="tarjeta">
 <form class="formulario" method="post">
-    <div class="campo">
-        <label for="repuesto_id">Repuesto / Accesorio</label>
-        <select id="repuesto_id" name="repuesto_id" required>
-            <option value="">— Seleccione —</option>
-            {% for r in repuestos %}
-            <option value="{{ r['id'] }}" {{ 'selected' if valores.get('repuesto_id')|string == r['id']|string else '' }}>
-                {{ r['nombre'] }} ({{ r['categoria'] }}) — stock: {{ r['stock'] }} — {{ r['precio']|moneda(r['moneda']) }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="campo">
-        <label for="cliente_id">Cliente</label>
-        <select id="cliente_id" name="cliente_id" required>
-            <option value="">— Seleccione —</option>
-            {% for c in clientes %}
-            <option value="{{ c['id'] }}" {{ 'selected' if valores.get('cliente_id')|string == c['id']|string else '' }}>
-                {{ c['nombre'] }} ({{ c['cedula'] }})
-            </option>
-            {% endfor %}
-        </select>
-    </div>
     <div class="campo">
         <label for="cantidad">Cantidad</label>
         <input type="number" step="1" min="1" id="cantidad" name="cantidad" value="{{ valores.get('cantidad', '') }}" required>
@@ -54,10 +32,9 @@
         </select>
     </div>
     <div>
-        <button type="submit" class="btn">Registrar venta</button>
+        <button type="submit" class="btn">Guardar</button>
         <a class="btn btn-secundario" href="{{ url_for('ventas_repuestos.listar') }}">Cancelar</a>
     </div>
 </form>
 </div>
-{% endif %}
 {% endblock %}

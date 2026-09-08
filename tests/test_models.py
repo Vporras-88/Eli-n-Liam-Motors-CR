@@ -83,6 +83,23 @@ def test_venta_registrar_marca_moto_vendida(bd_temporal):
         venta.registrar(moto_id, cliente_id, admin["id"], 1950.0, "contado")
 
 
+def test_venta_eliminar_libera_la_moto(bd_temporal):
+    moto = bd_temporal["motocicleta"]
+    cliente = bd_temporal["cliente"]
+    usuario = bd_temporal["usuario"]
+    venta = bd_temporal["venta"]
+
+    moto_id = moto.crear("Suzuki", "GN125", 2022, "Azul", 125, "VIN-DEL-1", 1500.0)
+    cliente_id = cliente.crear("Beto Jiménez", "404040404", "", "", "")
+    admin = usuario.obtener_por_usuario("admin")
+
+    venta_id = venta.registrar(moto_id, cliente_id, admin["id"], 1450.0, "contado")
+    venta.eliminar(venta_id)
+
+    assert venta.obtener_por_id(venta_id) is None
+    assert moto.obtener_por_id(moto_id)["estado"] == "disponible"
+
+
 def test_repuesto_stock_no_negativo(bd_temporal):
     repuesto = bd_temporal["repuesto"]
     repuesto_id = repuesto.crear("Pastillas de freno", "repuesto", "Honda", 25.0, 3, "Proveedor X")
@@ -110,6 +127,43 @@ def test_venta_repuesto_registrar_descuenta_stock(bd_temporal):
 
     with pytest.raises(ValueError):
         venta_repuesto.registrar(repuesto_id, cliente_id, admin["id"], 100, 75.0, "contado")
+
+
+def test_venta_repuesto_editar_ajusta_stock_por_diferencia(bd_temporal):
+    repuesto = bd_temporal["repuesto"]
+    cliente = bd_temporal["cliente"]
+    usuario = bd_temporal["usuario"]
+    venta_repuesto = bd_temporal["venta_repuesto"]
+
+    repuesto_id = repuesto.crear("Guantes", "accesorio", "Universal", 15.0, 10, "Proveedor Q")
+    cliente_id = cliente.crear("Nora Vindas", "505050505", "", "", "")
+    admin = usuario.obtener_por_usuario("admin")
+
+    venta_id = venta_repuesto.registrar(repuesto_id, cliente_id, admin["id"], 3, 15.0, "contado")
+    assert repuesto.obtener_por_id(repuesto_id)["stock"] == 7
+
+    venta_repuesto.actualizar(venta_id, 5, 14.0, "tarjeta")  # sube de 3 a 5: descuenta 2 más
+    assert repuesto.obtener_por_id(repuesto_id)["stock"] == 5
+
+    venta_repuesto.eliminar(venta_id)
+    assert repuesto.obtener_por_id(repuesto_id)["stock"] == 10
+
+
+def test_orden_trabajo_eliminar_restituye_stock(bd_temporal):
+    cliente = bd_temporal["cliente"]
+    repuesto = bd_temporal["repuesto"]
+    orden_trabajo = bd_temporal["orden_trabajo"]
+
+    cliente_id = cliente.crear("Iván Solano", "606060606", "", "", "")
+    repuesto_id = repuesto.crear("Filtro de aire", "repuesto", "Yamaha", 12.0, 8, "Proveedor R")
+
+    orden_id = orden_trabajo.crear(cliente_id, "Yamaha", "FZ", "DEF456", None, "Cambio de filtro", 10.0)
+    orden_trabajo.agregar_repuesto(orden_id, repuesto_id, 3)
+    assert repuesto.obtener_por_id(repuesto_id)["stock"] == 5
+
+    orden_trabajo.eliminar(orden_id)
+    assert orden_trabajo.obtener_por_id(orden_id) is None
+    assert repuesto.obtener_por_id(repuesto_id)["stock"] == 8
 
 
 def test_orden_trabajo_agregar_repuesto_descuenta_stock(bd_temporal):

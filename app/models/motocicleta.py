@@ -7,13 +7,15 @@ from app.models.database import get_connection
 ESTADOS = ("disponible", "reservada", "vendida")
 
 
-def crear(marca: str, modelo: str, anio: int, color: str, cilindraje: int, vin: str, precio: float) -> int:
+def crear(
+    marca: str, modelo: str, anio: int, color: str, cilindraje: int, vin: str, precio: float, moneda: str = "CRC"
+) -> int:
     with get_connection() as conn:
         cur = conn.execute(
             """INSERT INTO motocicletas
-               (marca, modelo, anio, color, cilindraje, vin, precio, estado, fecha_ingreso)
-               VALUES (?, ?, ?, ?, ?, ?, ?, 'disponible', datetime('now', 'localtime'))""",
-            (marca, modelo, anio, color, cilindraje, vin, precio),
+               (marca, modelo, anio, color, cilindraje, vin, precio, moneda, estado, fecha_ingreso)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'disponible', datetime('now', 'localtime'))""",
+            (marca, modelo, anio, color, cilindraje, vin, precio, moneda),
         )
         conn.commit()
         return cur.lastrowid
@@ -51,13 +53,15 @@ def buscar(texto: str) -> list[sqlite3.Row]:
         ).fetchall()
 
 
-def actualizar(moto_id: int, marca: str, modelo: str, anio: int, color: str, cilindraje: int, precio: float) -> None:
+def actualizar(
+    moto_id: int, marca: str, modelo: str, anio: int, color: str, cilindraje: int, precio: float, moneda: str = "CRC"
+) -> None:
     with get_connection() as conn:
         conn.execute(
             """UPDATE motocicletas
-               SET marca = ?, modelo = ?, anio = ?, color = ?, cilindraje = ?, precio = ?
+               SET marca = ?, modelo = ?, anio = ?, color = ?, cilindraje = ?, precio = ?, moneda = ?
                WHERE id = ?""",
-            (marca, modelo, anio, color, cilindraje, precio, moto_id),
+            (marca, modelo, anio, color, cilindraje, precio, moneda, moto_id),
         )
         conn.commit()
 

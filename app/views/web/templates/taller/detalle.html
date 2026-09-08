@@ -3,7 +3,13 @@
 {% block contenido %}
 <div class="barra-acciones">
     <h1>Orden de Trabajo #{{ orden['id'] }}</h1>
-    <a class="btn btn-secundario" href="{{ url_for('taller.listar') }}">← Volver</a>
+    <div style="display:flex;gap:0.4rem;">
+        <a class="btn btn-secundario" href="{{ url_for('taller.editar', orden_id=orden['id']) }}">Editar</a>
+        <form class="form-en-linea" method="post" action="{{ url_for('taller.eliminar', orden_id=orden['id']) }}" onsubmit="return confirm('¿Eliminar esta orden? El stock de sus repuestos usados será restituido.');">
+            <button type="submit" class="btn btn-peligro">Eliminar</button>
+        </form>
+        <a class="btn btn-secundario" href="{{ url_for('taller.listar') }}">← Volver</a>
+    </div>
 </div>
 
 <div class="tarjeta">
@@ -13,6 +19,7 @@
     <p><strong>Descripción del problema:</strong> {{ orden['descripcion_problema'] }}</p>
     <p><strong>Estado:</strong> <span class="badge badge-{{ orden['estado'] }}">{{ orden['estado'] }}</span></p>
     <p><strong>Ingreso:</strong> {{ orden['fecha_ingreso'] }} {% if orden['fecha_salida'] %}— <strong>Salida:</strong> {{ orden['fecha_salida'] }}{% endif %}</p>
+    <p><strong>Mano de obra:</strong> {{ orden['costo_mano_obra']|moneda(orden['moneda_mano_obra']) }}</p>
     <p><strong>Costo total (mano de obra + repuestos):</strong> {{ '%.2f'|format(costo_total) }}</p>
 
     <form method="post" action="{{ url_for('taller.cambiar_estado', orden_id=orden['id']) }}" style="display:flex;gap:0.5rem;align-items:center;margin-top:1rem;">
@@ -34,8 +41,8 @@
         <tr>
             <td>{{ r['repuesto_nombre'] }}</td>
             <td>{{ r['cantidad'] }}</td>
-            <td>{{ '%.2f'|format(r['precio_unitario']) }}</td>
-            <td>{{ '%.2f'|format(r['cantidad'] * r['precio_unitario']) }}</td>
+            <td>{{ r['precio_unitario']|moneda(r['moneda']) }}</td>
+            <td>{{ (r['cantidad'] * r['precio_unitario'])|moneda(r['moneda']) }}</td>
         </tr>
         {% else %}
         <tr><td colspan="4"><em>Todavía no se han agregado repuestos a esta orden.</em></td></tr>

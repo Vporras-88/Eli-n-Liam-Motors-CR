@@ -1,18 +1,12 @@
 {% extends "base.html" %}
-{% block titulo %}Nueva Orden de Trabajo — Elián-Liam Motors CR{% endblock %}
+{% block titulo %}Editar Orden — Elián-Liam Motors CR{% endblock %}
 {% block contenido %}
-<h1>Nueva Orden de Trabajo</h1>
+<h1>Editar Orden de Trabajo #{{ orden['id'] }}</h1>
+<div class="tarjeta">
+    <p><strong>Cliente:</strong> {{ cliente['nombre'] if cliente else '—' }}</p>
+</div>
 <div class="tarjeta">
 <form class="formulario" method="post">
-    <div class="campo">
-        <label for="cliente_id">Cliente</label>
-        <select id="cliente_id" name="cliente_id" required>
-            <option value="">— Seleccione —</option>
-            {% for c in clientes %}
-            <option value="{{ c['id'] }}" {{ 'selected' if valores.get('cliente_id')|string == c['id']|string else '' }}>{{ c['nombre'] }} ({{ c['cedula'] }})</option>
-            {% endfor %}
-        </select>
-    </div>
     <div class="campo">
         <label for="moto_marca">Marca de la moto</label>
         <input type="text" id="moto_marca" name="moto_marca" value="{{ valores.get('moto_marca', '') }}" required>
@@ -33,7 +27,6 @@
             <option value="{{ m['id'] }}" {{ 'selected' if valores.get('mecanico_id')|string == m['id']|string else '' }}>{{ m['nombre'] }}</option>
             {% endfor %}
         </select>
-        {% if not mecanicos %}<small>No hay mecánicos registrados todavía.</small>{% endif %}
     </div>
     <div class="campo">
         <label for="descripcion_problema">Descripción del problema</label>
@@ -51,8 +44,8 @@
         </div>
     </div>
     <div>
-        <button type="submit" class="btn">Crear orden</button>
-        <a class="btn btn-secundario" href="{{ url_for('taller.listar') }}">Cancelar</a>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('taller.detalle', orden_id=orden['id']) }}">Cancelar</a>
     </div>
 </form>
 </div>

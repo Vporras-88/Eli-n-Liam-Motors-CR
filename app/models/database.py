@@ -23,14 +23,27 @@ CREATE TABLE IF NOT EXISTS usuarios (
     fecha_creacion  TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS financieras (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre  TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS vendedores (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre  TEXT NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS clientes (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre          TEXT NOT NULL,
-    cedula          TEXT NOT NULL UNIQUE,
-    telefono        TEXT,
-    email           TEXT,
-    direccion       TEXT,
-    fecha_registro  TEXT NOT NULL
+    id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre                  TEXT NOT NULL,
+    cedula                  TEXT NOT NULL UNIQUE,
+    telefono                TEXT,
+    email                   TEXT,
+    direccion               TEXT,
+    financiera_id           INTEGER REFERENCES financieras(id),
+    estado_financiamiento   TEXT CHECK (estado_financiamiento IN ('aprobado', 'rechazado', 'pendiente')),
+    vendedor_id             INTEGER REFERENCES vendedores(id),
+    fecha_registro          TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS motocicletas (
@@ -42,6 +55,7 @@ CREATE TABLE IF NOT EXISTS motocicletas (
     cilindraje      INTEGER,
     vin             TEXT NOT NULL UNIQUE,
     precio          REAL NOT NULL,
+    moneda          TEXT NOT NULL CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC',
     estado          TEXT NOT NULL CHECK (estado IN ('disponible', 'reservada', 'vendida'))
                         DEFAULT 'disponible',
     fecha_ingreso   TEXT NOT NULL
@@ -54,6 +68,7 @@ CREATE TABLE IF NOT EXISTS ventas (
     vendedor_id     INTEGER NOT NULL REFERENCES usuarios(id),
     fecha           TEXT NOT NULL,
     precio_final    REAL NOT NULL,
+    moneda          TEXT NOT NULL CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC',
     metodo_pago     TEXT NOT NULL
 );
 
@@ -63,8 +78,10 @@ CREATE TABLE IF NOT EXISTS repuestos (
     categoria           TEXT NOT NULL CHECK (categoria IN ('repuesto', 'accesorio')),
     marca_compatible    TEXT,
     precio              REAL NOT NULL,
+    moneda              TEXT NOT NULL CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC',
     stock               INTEGER NOT NULL DEFAULT 0,
-    proveedor           TEXT
+    proveedor           TEXT,
+    imagen              TEXT
 );
 
 CREATE TABLE IF NOT EXISTS ventas_repuestos (
@@ -75,6 +92,7 @@ CREATE TABLE IF NOT EXISTS ventas_repuestos (
     fecha           TEXT NOT NULL,
     cantidad        INTEGER NOT NULL,
     precio_unitario REAL NOT NULL,
+    moneda          TEXT NOT NULL CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC',
     metodo_pago     TEXT NOT NULL
 );
 
@@ -90,6 +108,7 @@ CREATE TABLE IF NOT EXISTS ordenes_trabajo (
                                 CHECK (estado IN ('pendiente', 'en_proceso', 'completada', 'entregada'))
                                 DEFAULT 'pendiente',
     costo_mano_obra         REAL NOT NULL DEFAULT 0,
+    moneda_mano_obra        TEXT NOT NULL CHECK (moneda_mano_obra IN ('CRC', 'USD')) DEFAULT 'CRC',
     fecha_ingreso           TEXT NOT NULL,
     fecha_salida            TEXT
 );
@@ -99,7 +118,8 @@ CREATE TABLE IF NOT EXISTS orden_repuestos (
     orden_id            INTEGER NOT NULL REFERENCES ordenes_trabajo(id),
     repuesto_id         INTEGER NOT NULL REFERENCES repuestos(id),
     cantidad            INTEGER NOT NULL,
-    precio_unitario     REAL NOT NULL
+    precio_unitario     REAL NOT NULL,
+    moneda              TEXT NOT NULL CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC'
 );
 """
 
@@ -117,7 +137,62 @@ def init_db() -> None:
     """Crea el esquema si no existe y siembra el usuario admin por defecto."""
     with get_connection() as conn:
         conn.executescript(SCHEMA)
+        _migrar_clientes(conn)
+        _migrar_monedas(conn)
+        _migrar_imagen_repuestos(conn)
+        _migrar_moneda_mano_obra(conn)
         _seed_admin(conn)
+
+
+def _migrar_clientes(conn: sqlite3.Connection) -> None:
+    """Agrega a `clientes` las columnas de financiamiento en bases de datos creadas
+    antes de que existieran (SQLite no soporta `ADD COLUMN IF NOT EXISTS`)."""
+    columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(clientes)")}
+    if "financiera_id" not in columnas:
+        conn.execute("ALTER TABLE clientes ADD COLUMN financiera_id INTEGER REFERENCES financieras(id)")
+    if "estado_financiamiento" not in columnas:
+        conn.execute(
+            "ALTER TABLE clientes ADD COLUMN estado_financiamiento TEXT "
+            "CHECK (estado_financiamiento IN ('aprobado', 'rechazado', 'pendiente'))"
+        )
+    if "vendedor_id" not in columnas:
+        conn.execute("ALTER TABLE clientes ADD COLUMN vendedor_id INTEGER REFERENCES vendedores(id)")
+    conn.commit()
+
+
+def _migrar_monedas(conn: sqlite3.Connection) -> None:
+    """Agrega la columna `moneda` (CRC/USD) a las tablas con precio, en bases de
+    datos creadas antes de que existiera."""
+    tablas = ("motocicletas", "ventas", "repuestos", "ventas_repuestos", "orden_repuestos")
+    for tabla in tablas:
+        columnas = {fila["name"] for fila in conn.execute(f"PRAGMA table_info({tabla})")}
+        if "moneda" not in columnas:
+            conn.execute(
+                f"ALTER TABLE {tabla} ADD COLUMN moneda TEXT NOT NULL "
+                "CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC'"
+            )
+    conn.commit()
+
+
+def _migrar_imagen_repuestos(conn: sqlite3.Connection) -> None:
+    """Agrega la columna `imagen` a `repuestos` en bases de datos creadas antes
+    de que existiera."""
+    columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(repuestos)")}
+    if "imagen" not in columnas:
+        conn.execute("ALTER TABLE repuestos ADD COLUMN imagen TEXT")
+    conn.commit()
+
+
+def _migrar_moneda_mano_obra(conn: sqlite3.Connection) -> None:
+    """Agrega la columna `moneda_mano_obra` a `ordenes_trabajo` en bases de datos
+    creadas antes de que existiera."""
+    columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(ordenes_trabajo)")}
+    if "moneda_mano_obra" not in columnas:
+        conn.execute(
+            "ALTER TABLE ordenes_trabajo ADD COLUMN moneda_mano_obra TEXT NOT NULL "
+            "CHECK (moneda_mano_obra IN ('CRC', 'USD')) DEFAULT 'CRC'"
+        )
+    conn.commit()
 
 
 def _seed_admin(conn: sqlite3.Connection) -> None:

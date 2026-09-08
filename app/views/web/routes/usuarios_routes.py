@@ -68,7 +68,7 @@ def editar(usuario_id):
             flash(str(e), "error")
             return render_template("usuarios/form.html", usuario=fila, valores=datos, roles=ROLES)
 
-    return render_template("usuarios/form.html", usuario=fila, valores=fila, roles=ROLES)
+    return render_template("usuarios/form.html", usuario=fila, valores=dict(fila), roles=ROLES)
 
 
 @bp.route("/<int:usuario_id>/password", methods=["POST"])

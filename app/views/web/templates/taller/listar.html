@@ -20,7 +20,7 @@
 <div class="tabla-wrap">
 <table>
     <thead>
-        <tr><th>ID</th><th>Cliente</th><th>Moto</th><th>Placa</th><th>Mecánico</th><th>Estado</th><th>Mano de obra</th><th>Ingreso</th><th></th></tr>
+        <tr><th>ID</th><th>Cliente</th><th>Moto</th><th>Placa</th><th>Mecánico</th><th>Estado</th><th>Mano de obra</th><th>Ingreso</th><th></th><th></th></tr>
     </thead>
     <tbody>
         {% for o in ordenes %}
@@ -31,12 +31,18 @@
             <td>{{ o['moto_placa'] or '—' }}</td>
             <td>{{ o['mecanico_nombre'] or '—' }}</td>
             <td><span class="badge badge-{{ o['estado'] }}">{{ o['estado'] }}</span></td>
-            <td>{{ '%.2f'|format(o['costo_mano_obra']) }}</td>
+            <td>{{ o['costo_mano_obra']|moneda(o['moneda_mano_obra']) }}</td>
             <td>{{ o['fecha_ingreso'] }}</td>
             <td><a class="btn btn-secundario btn-pequeno" href="{{ url_for('taller.detalle', orden_id=o['id']) }}">Ver</a></td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('taller.editar', orden_id=o['id']) }}">Editar</a>
+                <form class="form-en-linea" method="post" action="{{ url_for('taller.eliminar', orden_id=o['id']) }}" onsubmit="return confirm('¿Eliminar la orden #{{ o['id'] }}? El stock de sus repuestos usados será restituido.');">
+                    <button type="submit" class="btn btn-peligro btn-pequeno">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% else %}
-        <tr><td colspan="9"><em>No hay órdenes de trabajo para mostrar.</em></td></tr>
+        <tr><td colspan="10"><em>No hay órdenes de trabajo para mostrar.</em></td></tr>
         {% endfor %}
     </tbody>
 </table>

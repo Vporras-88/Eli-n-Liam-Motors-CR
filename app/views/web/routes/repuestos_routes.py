@@ -1,11 +1,16 @@
 """Rutas del módulo de Repuestos y Accesorios."""
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import sqlite3
+from pathlib import Path
+
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
 from app.controllers import repuesto_controller
 from app.models import repuesto as repuesto_model
 from app.models.repuesto import CATEGORIAS
+from app.utils import imagenes
 from app.utils import validators as v
+from app.utils.moneda import MONEDA_POR_DEFECTO, MONEDAS
 from app.views.web.auth import requiere_permiso
 
 bp = Blueprint("repuestos", __name__, url_prefix="/repuestos")
@@ -24,15 +29,21 @@ def listar():
 def nuevo():
     if request.method == "POST":
         datos = request.form
+        archivo = request.files.get("imagen")
         errores = _validar(datos)
+        if archivo and archivo.filename and not imagenes.extension_valida(archivo.filename):
+            errores.append("La imagen debe ser PNG, JPG, GIF o WEBP.")
         if errores:
             for e in errores:
                 flash(e, "error")
             return render_template("repuestos/form.html", repuesto=None, valores=datos, categorias=CATEGORIAS)
         try:
+            imagen_path = None
+            if archivo and archivo.filename:
+                imagen_path = imagenes.guardar_imagen_repuesto(archivo, Path(current_app.static_folder))
             repuesto = repuesto_controller.crear_repuesto(
                 datos["nombre"], datos["categoria"], datos.get("marca_compatible", ""),
-                float(datos["precio"]), int(datos["stock"]), datos.get("proveedor", ""),
+                float(datos["precio"]), int(datos["stock"]), datos.get("proveedor", ""), _moneda(datos), imagen_path,
             )
             flash(f"'{repuesto['nombre']}' registrado con id {repuesto['id']}.", "exito")
             return redirect(url_for("repuestos.listar"))
@@ -52,14 +63,26 @@ def editar(repuesto_id):
 
     if request.method == "POST":
         datos = request.form
+        archivo = request.files.get("imagen")
         errores = _validar(datos, requerir_categoria_stock=False)
+        if archivo and archivo.filename and not imagenes.extension_valida(archivo.filename):
+            errores.append("La imagen debe ser PNG, JPG, GIF o WEBP.")
         if errores:
             for e in errores:
                 flash(e, "error")
             return render_template("repuestos/form.html", repuesto=fila, valores=datos, categorias=CATEGORIAS)
         try:
+            carpeta_static = Path(current_app.static_folder)
+            imagen_final = fila["imagen"]
+            if archivo and archivo.filename:
+                imagen_final = imagenes.guardar_imagen_repuesto(archivo, carpeta_static)
+                imagenes.eliminar_imagen_repuesto(fila["imagen"], carpeta_static)
+            elif datos.get("eliminar_imagen") == "1":
+                imagenes.eliminar_imagen_repuesto(fila["imagen"], carpeta_static)
+                imagen_final = None
             repuesto_controller.editar_repuesto(
-                repuesto_id, datos["nombre"], datos.get("marca_compatible", ""), float(datos["precio"]), datos.get("proveedor", "")
+                repuesto_id, datos["nombre"], datos.get("marca_compatible", ""), float(datos["precio"]),
+                datos.get("proveedor", ""), _moneda(datos), imagen_final,
             )
             flash("Repuesto actualizado.", "exito")
             return redirect(url_for("repuestos.listar"))
@@ -67,7 +90,7 @@ def editar(repuesto_id):
             flash(str(e), "error")
             return render_template("repuestos/form.html", repuesto=fila, valores=datos, categorias=CATEGORIAS)
 
-    return render_template("repuestos/form.html", repuesto=fila, valores=fila, categorias=CATEGORIAS)
+    return render_template("repuestos/form.html", repuesto=fila, valores=dict(fila), categorias=CATEGORIAS)
 
 
 @bp.route("/<int:repuesto_id>/stock", methods=["POST"])
@@ -88,6 +111,27 @@ def mover_stock(repuesto_id):
     except ValueError as e:
         flash(str(e), "error")
     return redirect(url_for("repuestos.listar"))
+
+
+@bp.route("/<int:repuesto_id>/eliminar", methods=["POST"])
+@requiere_permiso("repuestos")
+def eliminar(repuesto_id):
+    fila = repuesto_model.obtener_por_id(repuesto_id)
+    try:
+        repuesto_controller.eliminar_repuesto(repuesto_id)
+        if fila is not None:
+            imagenes.eliminar_imagen_repuesto(fila["imagen"], Path(current_app.static_folder))
+        flash("Repuesto eliminado.", "exito")
+    except ValueError as e:
+        flash(str(e), "error")
+    except sqlite3.IntegrityError:
+        flash("No se puede eliminar: el repuesto tiene ventas u órdenes de taller asociadas.", "error")
+    return redirect(url_for("repuestos.listar"))
+
+
+def _moneda(datos) -> str:
+    valor = datos.get("moneda", "").strip()
+    return valor if valor in MONEDAS else MONEDA_POR_DEFECTO
 
 
 def _validar(datos, requerir_categoria_stock: bool = True) -> list[str]:
