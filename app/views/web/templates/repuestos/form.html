@@ -3,7 +3,7 @@
 {% block contenido %}
 <h1>{{ 'Editar' if repuesto else 'Agregar' }} Repuesto/Accesorio</h1>
 <div class="tarjeta">
-<form class="formulario" method="post">
+<form class="formulario" method="post" enctype="multipart/form-data">
     <div class="campo">
         <label for="nombre">Nombre</label>
         <input type="text" id="nombre" name="nombre" value="{{ valores.get('nombre', '') if valores else '' }}" required>
@@ -44,6 +44,18 @@
     <div class="campo">
         <label for="proveedor">Proveedor</label>
         <input type="text" id="proveedor" name="proveedor" value="{{ valores.get('proveedor', '') if valores else '' }}">
+    </div>
+    <div class="campo">
+        <label for="imagen">Imagen</label>
+        {% if repuesto and repuesto['imagen'] %}
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;">
+            <img src="{{ url_for('static', filename=repuesto['imagen']) }}" alt="{{ repuesto['nombre'] }}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--borde);">
+            <label style="display:flex;align-items:center;gap:0.3rem;font-weight:normal;">
+                <input type="checkbox" name="eliminar_imagen" value="1"> Quitar imagen actual
+            </label>
+        </div>
+        {% endif %}
+        <input type="file" id="imagen" name="imagen" accept="image/png,image/jpeg,image/gif,image/webp">
     </div>
     <div>
         <button type="submit" class="btn">Guardar</button>

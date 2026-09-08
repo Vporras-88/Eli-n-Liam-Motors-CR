@@ -16,6 +16,7 @@ from app.views.web.nav import opciones_visibles
 def crear_app() -> Flask:
     app = Flask(__name__, template_folder="app/views/web/templates", static_folder="app/views/web/static")
     app.secret_key = secrets.token_hex(32)
+    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB, para las imágenes de repuestos
 
     init_db()
 

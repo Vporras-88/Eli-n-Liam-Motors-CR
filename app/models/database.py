@@ -80,7 +80,8 @@ CREATE TABLE IF NOT EXISTS repuestos (
     precio              REAL NOT NULL,
     moneda              TEXT NOT NULL CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC',
     stock               INTEGER NOT NULL DEFAULT 0,
-    proveedor           TEXT
+    proveedor           TEXT,
+    imagen              TEXT
 );
 
 CREATE TABLE IF NOT EXISTS ventas_repuestos (
@@ -107,6 +108,7 @@ CREATE TABLE IF NOT EXISTS ordenes_trabajo (
                                 CHECK (estado IN ('pendiente', 'en_proceso', 'completada', 'entregada'))
                                 DEFAULT 'pendiente',
     costo_mano_obra         REAL NOT NULL DEFAULT 0,
+    moneda_mano_obra        TEXT NOT NULL CHECK (moneda_mano_obra IN ('CRC', 'USD')) DEFAULT 'CRC',
     fecha_ingreso           TEXT NOT NULL,
     fecha_salida            TEXT
 );
@@ -137,6 +139,8 @@ def init_db() -> None:
         conn.executescript(SCHEMA)
         _migrar_clientes(conn)
         _migrar_monedas(conn)
+        _migrar_imagen_repuestos(conn)
+        _migrar_moneda_mano_obra(conn)
         _seed_admin(conn)
 
 
@@ -167,6 +171,27 @@ def _migrar_monedas(conn: sqlite3.Connection) -> None:
                 f"ALTER TABLE {tabla} ADD COLUMN moneda TEXT NOT NULL "
                 "CHECK (moneda IN ('CRC', 'USD')) DEFAULT 'CRC'"
             )
+    conn.commit()
+
+
+def _migrar_imagen_repuestos(conn: sqlite3.Connection) -> None:
+    """Agrega la columna `imagen` a `repuestos` en bases de datos creadas antes
+    de que existiera."""
+    columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(repuestos)")}
+    if "imagen" not in columnas:
+        conn.execute("ALTER TABLE repuestos ADD COLUMN imagen TEXT")
+    conn.commit()
+
+
+def _migrar_moneda_mano_obra(conn: sqlite3.Connection) -> None:
+    """Agrega la columna `moneda_mano_obra` a `ordenes_trabajo` en bases de datos
+    creadas antes de que existiera."""
+    columnas = {fila["name"] for fila in conn.execute("PRAGMA table_info(ordenes_trabajo)")}
+    if "moneda_mano_obra" not in columnas:
+        conn.execute(
+            "ALTER TABLE ordenes_trabajo ADD COLUMN moneda_mano_obra TEXT NOT NULL "
+            "CHECK (moneda_mano_obra IN ('CRC', 'USD')) DEFAULT 'CRC'"
+        )
     conn.commit()
 
 

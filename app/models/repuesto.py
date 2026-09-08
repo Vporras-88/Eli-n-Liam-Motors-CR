@@ -9,13 +9,20 @@ STOCK_BAJO_UMBRAL = 5
 
 
 def crear(
-    nombre: str, categoria: str, marca_compatible: str, precio: float, stock: int, proveedor: str, moneda: str = "CRC"
+    nombre: str,
+    categoria: str,
+    marca_compatible: str,
+    precio: float,
+    stock: int,
+    proveedor: str,
+    moneda: str = "CRC",
+    imagen: str | None = None,
 ) -> int:
     with get_connection() as conn:
         cur = conn.execute(
-            """INSERT INTO repuestos (nombre, categoria, marca_compatible, precio, moneda, stock, proveedor)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (nombre, categoria, marca_compatible, precio, moneda, stock, proveedor),
+            """INSERT INTO repuestos (nombre, categoria, marca_compatible, precio, moneda, stock, proveedor, imagen)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (nombre, categoria, marca_compatible, precio, moneda, stock, proveedor, imagen),
         )
         conn.commit()
         return cur.lastrowid
@@ -39,12 +46,20 @@ def listar_stock_bajo(umbral: int = STOCK_BAJO_UMBRAL) -> list[sqlite3.Row]:
 
 
 def actualizar(
-    repuesto_id: int, nombre: str, marca_compatible: str, precio: float, proveedor: str, moneda: str = "CRC"
+    repuesto_id: int,
+    nombre: str,
+    marca_compatible: str,
+    precio: float,
+    proveedor: str,
+    moneda: str = "CRC",
+    imagen: str | None = None,
 ) -> None:
     with get_connection() as conn:
         conn.execute(
-            "UPDATE repuestos SET nombre = ?, marca_compatible = ?, precio = ?, moneda = ?, proveedor = ? WHERE id = ?",
-            (nombre, marca_compatible, precio, moneda, proveedor, repuesto_id),
+            """UPDATE repuestos
+               SET nombre = ?, marca_compatible = ?, precio = ?, moneda = ?, proveedor = ?, imagen = ?
+               WHERE id = ?""",
+            (nombre, marca_compatible, precio, moneda, proveedor, imagen, repuesto_id),
         )
         conn.commit()
 
