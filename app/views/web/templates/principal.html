@@ -12,9 +12,9 @@
 </section>
 
 <p>Seleccione un módulo:</p>
-<div class="tarjetas-resumen">
+<div class="tarjetas-resumen menu-modulos">
     {% for clave, etiqueta, endpoint in opciones %}
-    <a class="tarjeta" style="text-decoration:none;color:inherit;display:block" href="{{ url_for(endpoint) }}">
+    <a class="tarjeta-modulo" href="{{ url_for(endpoint) }}">
         <h3>{{ etiqueta }}</h3>
         <span class="valor">→</span>
     </a>
