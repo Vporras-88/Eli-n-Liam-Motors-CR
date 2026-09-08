@@ -61,17 +61,31 @@ body {
 }
 
 .nav a {
-    color: #ccc;
+    color: #dcdcdc;
     text-decoration: none;
-    font-size: 1.15rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    padding: 0.25rem 0;
-    border-bottom: 2px solid transparent;
+    letter-spacing: 0.02em;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
-.nav a:hover, .nav a.activo {
+.nav a:hover {
     color: white;
-    border-bottom-color: var(--verde-metalico-claro);
+    background: rgba(127, 174, 142, 0.25);
+    border-color: var(--verde-metalico-claro);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav a.activo {
+    color: white;
+    background: var(--btn-metal);
+    border-color: var(--verde-metalico-claro);
+    box-shadow: 0 0 0 1px var(--verde-metalico-claro), 0 3px 12px rgba(127, 174, 142, 0.4);
 }
 
 .logout-form {
