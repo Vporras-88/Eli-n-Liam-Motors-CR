@@ -7,6 +7,7 @@ from app.models import cliente as cliente_model
 from app.models import orden_trabajo as orden_model
 from app.models.orden_trabajo import ESTADOS
 from app.utils import validators as v
+from app.utils.moneda import MONEDA_POR_DEFECTO, MONEDAS
 from app.views.web.auth import requiere_permiso
 
 bp = Blueprint("taller", __name__, url_prefix="/taller")
@@ -52,7 +53,7 @@ def nueva():
             mecanico_id = int(datos["mecanico_id"]) if datos.get("mecanico_id") else None
             orden = taller_controller.crear_orden(
                 int(datos["cliente_id"]), datos["moto_marca"], datos["moto_modelo"], datos.get("moto_placa", ""),
-                mecanico_id, datos["descripcion_problema"], float(datos["costo_mano_obra"]),
+                mecanico_id, datos["descripcion_problema"], float(datos["costo_mano_obra"]), _moneda(datos),
             )
             flash(f"Orden de trabajo id {orden['id']} creada con estado '{orden['estado']}'.", "exito")
             return redirect(url_for("taller.detalle", orden_id=orden["id"]))
@@ -110,7 +111,7 @@ def editar(orden_id):
             mecanico_id = int(datos["mecanico_id"]) if datos.get("mecanico_id") else None
             taller_controller.editar_orden(
                 orden_id, datos["moto_marca"], datos["moto_modelo"], datos.get("moto_placa", ""),
-                mecanico_id, datos["descripcion_problema"], float(datos["costo_mano_obra"]),
+                mecanico_id, datos["descripcion_problema"], float(datos["costo_mano_obra"]), _moneda(datos),
             )
             flash("Orden actualizada.", "exito")
             return redirect(url_for("taller.detalle", orden_id=orden_id))
@@ -159,3 +160,8 @@ def agregar_repuesto(orden_id):
     except ValueError as e:
         flash(str(e), "error")
     return redirect(url_for("taller.detalle", orden_id=orden_id))
+
+
+def _moneda(datos) -> str:
+    valor = datos.get("moneda_mano_obra", "").strip()
+    return valor if valor in MONEDAS else MONEDA_POR_DEFECTO

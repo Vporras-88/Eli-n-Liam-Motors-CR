@@ -31,7 +31,7 @@
             <td>{{ o['moto_placa'] or '—' }}</td>
             <td>{{ o['mecanico_nombre'] or '—' }}</td>
             <td><span class="badge badge-{{ o['estado'] }}">{{ o['estado'] }}</span></td>
-            <td>{{ '%.2f'|format(o['costo_mano_obra']) }}</td>
+            <td>{{ o['costo_mano_obra']|moneda(o['moneda_mano_obra']) }}</td>
             <td>{{ o['fecha_ingreso'] }}</td>
             <td><a class="btn btn-secundario btn-pequeno" href="{{ url_for('taller.detalle', orden_id=o['id']) }}">Ver</a></td>
             <td style="display:flex;gap:0.4rem;">

@@ -15,14 +15,16 @@ def crear(
     mecanico_id: int | None,
     descripcion_problema: str,
     costo_mano_obra: float,
+    moneda_mano_obra: str = "CRC",
 ) -> int:
     with get_connection() as conn:
         cur = conn.execute(
             """INSERT INTO ordenes_trabajo
                (cliente_id, moto_marca, moto_modelo, moto_placa, mecanico_id,
-                descripcion_problema, estado, costo_mano_obra, fecha_ingreso)
-               VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, datetime('now', 'localtime'))""",
-            (cliente_id, moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema, costo_mano_obra),
+                descripcion_problema, estado, costo_mano_obra, moneda_mano_obra, fecha_ingreso)
+               VALUES (?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, datetime('now', 'localtime'))""",
+            (cliente_id, moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema,
+             costo_mano_obra, moneda_mano_obra),
         )
         conn.commit()
         return cur.lastrowid
@@ -57,14 +59,16 @@ def actualizar(
     mecanico_id: int | None,
     descripcion_problema: str,
     costo_mano_obra: float,
+    moneda_mano_obra: str = "CRC",
 ) -> None:
     with get_connection() as conn:
         conn.execute(
             """UPDATE ordenes_trabajo
                SET moto_marca = ?, moto_modelo = ?, moto_placa = ?, mecanico_id = ?,
-                   descripcion_problema = ?, costo_mano_obra = ?
+                   descripcion_problema = ?, costo_mano_obra = ?, moneda_mano_obra = ?
                WHERE id = ?""",
-            (moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema, costo_mano_obra, orden_id),
+            (moto_marca, moto_modelo, moto_placa, mecanico_id, descripcion_problema,
+             costo_mano_obra, moneda_mano_obra, orden_id),
         )
         conn.commit()
 

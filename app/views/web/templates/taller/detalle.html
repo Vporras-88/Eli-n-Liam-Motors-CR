@@ -19,6 +19,7 @@
     <p><strong>Descripción del problema:</strong> {{ orden['descripcion_problema'] }}</p>
     <p><strong>Estado:</strong> <span class="badge badge-{{ orden['estado'] }}">{{ orden['estado'] }}</span></p>
     <p><strong>Ingreso:</strong> {{ orden['fecha_ingreso'] }} {% if orden['fecha_salida'] %}— <strong>Salida:</strong> {{ orden['fecha_salida'] }}{% endif %}</p>
+    <p><strong>Mano de obra:</strong> {{ orden['costo_mano_obra']|moneda(orden['moneda_mano_obra']) }}</p>
     <p><strong>Costo total (mano de obra + repuestos):</strong> {{ '%.2f'|format(costo_total) }}</p>
 
     <form method="post" action="{{ url_for('taller.cambiar_estado', orden_id=orden['id']) }}" style="display:flex;gap:0.5rem;align-items:center;margin-top:1rem;">

@@ -41,7 +41,14 @@
     </div>
     <div class="campo">
         <label for="costo_mano_obra">Costo de mano de obra</label>
-        <input type="number" step="0.01" id="costo_mano_obra" name="costo_mano_obra" value="{{ valores.get('costo_mano_obra', '') }}" required>
+        <div style="display:flex;gap:0.4rem;">
+            <input type="number" step="0.01" id="costo_mano_obra" name="costo_mano_obra" value="{{ valores.get('costo_mano_obra', '') }}" required style="flex:1;">
+            <select name="moneda_mano_obra" style="flex:0 0 auto;">
+                {% for cod, etiqueta in MONEDAS.items() %}
+                <option value="{{ cod }}" {{ 'selected' if valores.get('moneda_mano_obra', 'CRC') == cod else '' }}>{{ etiqueta }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
     <div>
         <button type="submit" class="btn">Crear orden</button>
