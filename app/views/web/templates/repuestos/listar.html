@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block titulo %}Repuestos y Accesorios — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<div class="barra-acciones">
+    <h1>Repuestos y Accesorios</h1>
+    <a class="btn" href="{{ url_for('repuestos.nuevo') }}">+ Agregar repuesto/accesorio</a>
+</div>
+
+<div class="filtros">
+    <a class="btn btn-secundario" href="{{ url_for('repuestos.listar') }}">Ver todos</a>
+    <a class="btn btn-secundario" href="{{ url_for('repuestos.listar', stock_bajo=1) }}">Ver solo stock bajo</a>
+</div>
+
+<br>
+<div class="tabla-wrap">
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Categoría</th><th>Marca compatible</th><th>Precio</th><th>Stock</th><th>Proveedor</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for r in repuestos %}
+        <tr>
+            <td>{{ r['id'] }}</td>
+            <td>{{ r['nombre'] }}</td>
+            <td>{{ r['categoria'] }}</td>
+            <td>{{ r['marca_compatible'] or '—' }}</td>
+            <td>{{ '%.2f'|format(r['precio']) }}</td>
+            <td>{{ r['stock'] }}</td>
+            <td>{{ r['proveedor'] or '—' }}</td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('repuestos.editar', repuesto_id=r['id']) }}">Editar</a>
+                <details>
+                    <summary class="btn btn-secundario btn-pequeno" style="display:inline-block;cursor:pointer;">Stock</summary>
+                    <form method="post" action="{{ url_for('repuestos.mover_stock', repuesto_id=r['id']) }}" style="margin-top:0.4rem;display:flex;gap:0.3rem;">
+                        <select name="tipo">
+                            <option value="entrada">Entrada</option>
+                            <option value="salida">Salida</option>
+                        </select>
+                        <input type="number" name="cantidad" min="1" style="width:70px" required>
+                        <button type="submit" class="btn btn-pequeno">OK</button>
+                    </form>
+                </details>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8"><em>{{ 'No hay repuestos con stock bajo.' if solo_bajo else 'No hay repuestos/accesorios registrados.' }}</em></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

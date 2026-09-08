@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar' if cliente else 'Agregar' }} Cliente — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>{{ 'Editar' if cliente else 'Agregar' }} Cliente</h1>
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" value="{{ valores.get('nombre', '') if valores else '' }}" required>
+    </div>
+    <div class="campo">
+        <label for="cedula">Cédula</label>
+        {% if cliente %}
+        <input type="text" value="{{ cliente['cedula'] }}" disabled>
+        {% else %}
+        <input type="text" id="cedula" name="cedula" value="{{ valores.get('cedula', '') if valores else '' }}" required>
+        {% endif %}
+    </div>
+    <div class="campo">
+        <label for="telefono">Teléfono (0000-0000)</label>
+        <input type="text" id="telefono" name="telefono" value="{{ valores.get('telefono', '') if valores else '' }}">
+    </div>
+    <div class="campo">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ valores.get('email', '') if valores else '' }}">
+    </div>
+    <div class="campo">
+        <label for="direccion">Dirección</label>
+        <input type="text" id="direccion" name="direccion" value="{{ valores.get('direccion', '') if valores else '' }}">
+    </div>
+    <div>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('clientes.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

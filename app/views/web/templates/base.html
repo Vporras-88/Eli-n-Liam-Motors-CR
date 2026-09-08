@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block titulo %}Elián-Liam Motors CR{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="marca" href="{{ url_for('principal.index') }}">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Elián-Liam Motors CR" class="logo-img">
+            <span>Elián-Liam Motors CR</span>
+        </a>
+        {% if usuario %}
+        <nav class="nav">
+            {% for clave, etiqueta, endpoint in opciones_menu %}
+            <a href="{{ url_for(endpoint) }}" class="{{ 'activo' if request.blueprint == clave else '' }}">{{ etiqueta }}</a>
+            {% endfor %}
+        </nav>
+        <form class="logout-form" method="post" action="{{ url_for('auth.logout') }}">
+            <span class="usuario-info">{{ usuario['nombre'] }} ({{ usuario['rol'] }})</span>
+            <button type="submit" class="btn btn-secundario">Cerrar sesión</button>
+        </form>
+        {% endif %}
+    </header>
+
+    <main class="contenido">
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+                <div class="flashes">
+                    {% for categoria, mensaje in mensajes %}
+                        <div class="flash flash-{{ categoria }}">{{ mensaje }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block contenido %}{% endblock %}
+    </main>
+</body>
+</html>

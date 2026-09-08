@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar' if usuario else 'Crear' }} Usuario — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>{{ 'Editar' if usuario else 'Crear' }} Usuario</h1>
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" name="nombre" value="{{ valores.get('nombre', '') if valores else '' }}" required>
+    </div>
+    <div class="campo">
+        <label for="usuario_campo">Nombre de usuario</label>
+        {% if usuario %}
+        <input type="text" value="{{ usuario['usuario'] }}" disabled>
+        {% else %}
+        <input type="text" id="usuario_campo" name="usuario" value="{{ valores.get('usuario', '') if valores else '' }}" required>
+        {% endif %}
+    </div>
+    {% if not usuario %}
+    <div class="campo">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    {% endif %}
+    <div class="campo">
+        <label for="rol">Rol</label>
+        <select id="rol" name="rol" required>
+            {% for r in roles %}
+            <option value="{{ r }}" {{ 'selected' if (valores.get('rol') if valores else '') == r else '' }}>{{ r }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('usuarios.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

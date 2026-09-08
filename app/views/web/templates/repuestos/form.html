@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar' if repuesto else 'Agregar' }} Repuesto — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>{{ 'Editar' if repuesto else 'Agregar' }} Repuesto/Accesorio</h1>
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" value="{{ valores.get('nombre', '') if valores else '' }}" required>
+    </div>
+    <div class="campo">
+        <label for="categoria">Categoría</label>
+        {% if repuesto %}
+        <input type="text" value="{{ repuesto['categoria'] }}" disabled>
+        {% else %}
+        <select id="categoria" name="categoria" required>
+            {% for cat in categorias %}
+            <option value="{{ cat }}" {{ 'selected' if valores.get('categoria') == cat else '' }}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+    </div>
+    <div class="campo">
+        <label for="marca_compatible">Marca compatible</label>
+        <input type="text" id="marca_compatible" name="marca_compatible" value="{{ valores.get('marca_compatible', '') if valores else '' }}">
+    </div>
+    <div class="campo">
+        <label for="precio">Precio</label>
+        <input type="number" step="0.01" id="precio" name="precio" value="{{ valores.get('precio', '') if valores else '' }}" required>
+    </div>
+    {% if not repuesto %}
+    <div class="campo">
+        <label for="stock">Stock inicial</label>
+        <input type="number" id="stock" name="stock" value="{{ valores.get('stock', '') if valores else '' }}" required>
+    </div>
+    {% endif %}
+    <div class="campo">
+        <label for="proveedor">Proveedor</label>
+        <input type="text" id="proveedor" name="proveedor" value="{{ valores.get('proveedor', '') if valores else '' }}">
+    </div>
+    <div>
+        <button type="submit" class="btn">Guardar</button>
+        <a class="btn btn-secundario" href="{{ url_for('repuestos.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endblock %}

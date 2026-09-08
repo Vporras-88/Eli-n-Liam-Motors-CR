@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar Venta de Repuesto — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Registrar Venta de Repuesto o Accesorio</h1>
+
+{% if not repuestos %}
+<p><em>No hay repuestos ni accesorios con stock disponible para vender.</em></p>
+{% else %}
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="repuesto_id">Repuesto / Accesorio</label>
+        <select id="repuesto_id" name="repuesto_id" required>
+            <option value="">— Seleccione —</option>
+            {% for r in repuestos %}
+            <option value="{{ r['id'] }}" {{ 'selected' if valores.get('repuesto_id')|string == r['id']|string else '' }}>
+                {{ r['nombre'] }} ({{ r['categoria'] }}) — stock: {{ r['stock'] }} — {{ '%.2f'|format(r['precio']) }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="campo">
+        <label for="cliente_id">Cliente</label>
+        <select id="cliente_id" name="cliente_id" required>
+            <option value="">— Seleccione —</option>
+            {% for c in clientes %}
+            <option value="{{ c['id'] }}" {{ 'selected' if valores.get('cliente_id')|string == c['id']|string else '' }}>
+                {{ c['nombre'] }} ({{ c['cedula'] }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="campo">
+        <label for="cantidad">Cantidad</label>
+        <input type="number" step="1" min="1" id="cantidad" name="cantidad" value="{{ valores.get('cantidad', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="precio_unitario">Precio unitario</label>
+        <input type="number" step="0.01" id="precio_unitario" name="precio_unitario" value="{{ valores.get('precio_unitario', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="metodo_pago">Método de pago</label>
+        <select id="metodo_pago" name="metodo_pago" required>
+            {% for met in metodos %}
+            <option value="{{ met }}" {{ 'selected' if valores.get('metodo_pago') == met else '' }}>{{ met }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button type="submit" class="btn">Registrar venta</button>
+        <a class="btn btn-secundario" href="{{ url_for('ventas_repuestos.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endif %}
+{% endblock %}

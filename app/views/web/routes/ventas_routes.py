@@ -1,0 +1,51 @@
+"""Rutas del módulo de Ventas."""
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+
+from app.controllers import cliente_controller, inventario_controller, venta_controller
+from app.utils import validators as v
+from app.views.web.auth import requiere_permiso, usuario_actual
+
+bp = Blueprint("ventas", __name__, url_prefix="/ventas")
+
+
+@bp.route("/")
+@requiere_permiso("ventas")
+def listar():
+    return render_template("ventas/listar.html", ventas=venta_controller.listar_ventas())
+
+
+@bp.route("/nueva", methods=["GET", "POST"])
+@requiere_permiso("ventas")
+def nueva():
+    disponibles = inventario_controller.listar_disponibles()
+    clientes = cliente_controller.listar_clientes()
+
+    if request.method == "POST":
+        datos = request.form
+        errores = []
+        ok, msg = v.validar_entero_positivo(datos.get("moto_id", ""), "Motocicleta")
+        if not ok:
+            errores.append(msg)
+        ok, msg = v.validar_entero_positivo(datos.get("cliente_id", ""), "Cliente")
+        if not ok:
+            errores.append(msg)
+        ok, msg = v.validar_decimal_positivo(datos.get("precio_final", ""), "Precio final")
+        if not ok:
+            errores.append(msg)
+        if errores:
+            for e in errores:
+                flash(e, "error")
+            return render_template("ventas/form.html", motos=disponibles, clientes=clientes, metodos=venta_controller.METODOS_PAGO, valores=datos)
+        try:
+            venta = venta_controller.registrar_venta(
+                int(datos["moto_id"]), int(datos["cliente_id"]), usuario_actual()["id"],
+                float(datos["precio_final"]), datos.get("metodo_pago", ""),
+            )
+            flash(f"Venta registrada: {venta['marca']} {venta['modelo']} a {venta['cliente_nombre']} por {venta['precio_final']}.", "exito")
+            return redirect(url_for("ventas.listar"))
+        except ValueError as e:
+            flash(str(e), "error")
+            return render_template("ventas/form.html", motos=disponibles, clientes=clientes, metodos=venta_controller.METODOS_PAGO, valores=datos)
+
+    return render_template("ventas/form.html", motos=disponibles, clientes=clientes, metodos=venta_controller.METODOS_PAGO, valores={})

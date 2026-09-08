@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Reportes — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Reportes</h1>
+
+<div class="tarjetas-resumen">
+    <div class="tarjeta tarjeta-resumen">
+        <h3>Total vendido (histórico)</h3>
+        <div class="valor">{{ '%.2f'|format(total_ventas) }}</div>
+    </div>
+    <div class="tarjeta tarjeta-resumen">
+        <h3>Órdenes de taller abiertas</h3>
+        <div class="valor">{{ ordenes_abiertas }}</div>
+    </div>
+    <div class="tarjeta tarjeta-resumen">
+        <h3>Órdenes de taller entregadas</h3>
+        <div class="valor">{{ ordenes_entregadas }}</div>
+    </div>
+</div>
+
+<h2>Repuestos con stock bajo</h2>
+<div class="tabla-wrap">
+<table>
+    <thead><tr><th>ID</th><th>Nombre</th><th>Stock</th></tr></thead>
+    <tbody>
+        {% for r in stock_bajo %}
+        <tr><td>{{ r['id'] }}</td><td>{{ r['nombre'] }}</td><td>{{ r['stock'] }}</td></tr>
+        {% else %}
+        <tr><td colspan="3"><em>No hay repuestos con stock bajo.</em></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

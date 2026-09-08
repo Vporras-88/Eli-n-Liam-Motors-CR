@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar Venta — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<h1>Registrar Venta</h1>
+
+{% if not motos %}
+<p><em>No hay motocicletas disponibles para vender.</em></p>
+{% else %}
+<div class="tarjeta">
+<form class="formulario" method="post">
+    <div class="campo">
+        <label for="moto_id">Motocicleta</label>
+        <select id="moto_id" name="moto_id" required>
+            <option value="">— Seleccione —</option>
+            {% for m in motos %}
+            <option value="{{ m['id'] }}" {{ 'selected' if valores.get('moto_id')|string == m['id']|string else '' }}>
+                {{ m['marca'] }} {{ m['modelo'] }} ({{ m['anio'] }}) — {{ '%.2f'|format(m['precio']) }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="campo">
+        <label for="cliente_id">Cliente</label>
+        <select id="cliente_id" name="cliente_id" required>
+            <option value="">— Seleccione —</option>
+            {% for c in clientes %}
+            <option value="{{ c['id'] }}" {{ 'selected' if valores.get('cliente_id')|string == c['id']|string else '' }}>
+                {{ c['nombre'] }} ({{ c['cedula'] }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="campo">
+        <label for="precio_final">Precio final</label>
+        <input type="number" step="0.01" id="precio_final" name="precio_final" value="{{ valores.get('precio_final', '') }}" required>
+    </div>
+    <div class="campo">
+        <label for="metodo_pago">Método de pago</label>
+        <select id="metodo_pago" name="metodo_pago" required>
+            {% for met in metodos %}
+            <option value="{{ met }}" {{ 'selected' if valores.get('metodo_pago') == met else '' }}>{{ met }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button type="submit" class="btn">Registrar venta</button>
+        <a class="btn btn-secundario" href="{{ url_for('ventas.listar') }}">Cancelar</a>
+    </div>
+</form>
+</div>
+{% endif %}
+{% endblock %}

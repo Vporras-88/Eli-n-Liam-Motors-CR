@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<div class="barra-acciones">
+    <h1>Clientes</h1>
+    <a class="btn" href="{{ url_for('clientes.nuevo') }}">+ Agregar cliente</a>
+</div>
+
+<form class="filtros" method="get">
+    <input type="text" name="q" placeholder="Buscar por nombre o cédula" value="{{ q }}">
+    <button type="submit" class="btn btn-secundario">Buscar</button>
+</form>
+
+<br>
+<div class="tabla-wrap">
+<table>
+    <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for c in clientes %}
+        <tr>
+            <td>{{ c['id'] }}</td>
+            <td>{{ c['nombre'] }}</td>
+            <td>{{ c['cedula'] }}</td>
+            <td>{{ c['telefono'] or '—' }}</td>
+            <td>{{ c['email'] or '—' }}</td>
+            <td>{{ c['direccion'] or '—' }}</td>
+            <td><a class="btn btn-secundario btn-pequeno" href="{{ url_for('clientes.editar', cliente_id=c['id']) }}">Editar</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7"><em>No hay clientes registrados.</em></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block titulo %}Inventario — Elián-Liam Motors CR{% endblock %}
+{% block contenido %}
+<div class="barra-acciones">
+    <h1>Inventario de Motocicletas</h1>
+    <a class="btn" href="{{ url_for('inventario.nuevo') }}">+ Agregar motocicleta</a>
+</div>
+
+<form class="filtros" method="get">
+    <input type="text" name="q" placeholder="Buscar por marca, modelo o VIN" value="{{ q }}">
+    <select name="estado">
+        <option value="">Todos los estados</option>
+        {% for e in estados %}
+        <option value="{{ e }}" {{ 'selected' if e == estado else '' }}>{{ e }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secundario">Filtrar</button>
+</form>
+
+<br>
+<div class="tabla-wrap">
+<table>
+    <thead>
+        <tr><th>ID</th><th>Marca</th><th>Modelo</th><th>Año</th><th>Color</th><th>Cilindraje</th><th>VIN</th><th>Precio</th><th>Estado</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for m in motos %}
+        <tr>
+            <td>{{ m['id'] }}</td>
+            <td>{{ m['marca'] }}</td>
+            <td>{{ m['modelo'] }}</td>
+            <td>{{ m['anio'] }}</td>
+            <td>{{ m['color'] or '—' }}</td>
+            <td>{{ m['cilindraje'] or '—' }}</td>
+            <td>{{ m['vin'] }}</td>
+            <td>{{ '%.2f'|format(m['precio']) }}</td>
+            <td><span class="badge badge-{{ m['estado'] }}">{{ m['estado'] }}</span></td>
+            <td style="display:flex;gap:0.4rem;">
+                <a class="btn btn-secundario btn-pequeno" href="{{ url_for('inventario.editar', moto_id=m['id']) }}">Editar</a>
+                <details>
+                    <summary class="btn btn-secundario btn-pequeno" style="display:inline-block;cursor:pointer;">Estado</summary>
+                    <form method="post" action="{{ url_for('inventario.cambiar_estado', moto_id=m['id']) }}" style="margin-top:0.4rem;display:flex;gap:0.3rem;">
+                        <select name="estado">
+                            {% for e in estados %}
+                            <option value="{{ e }}" {{ 'selected' if e == m['estado'] else '' }}>{{ e }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-pequeno">OK</button>
+                    </form>
+                </details>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10"><em>No hay motocicletas para mostrar.</em></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
