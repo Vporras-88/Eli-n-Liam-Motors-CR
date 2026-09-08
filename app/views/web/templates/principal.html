@@ -7,32 +7,7 @@
         <p>Tu agencia multimarca de <strong>motocicletas</strong> y <strong>cuadraciclos</strong>. Seleccione un módulo para continuar.</p>
     </div>
     <div class="bienvenida-ilustraciones">
-        <div class="bienvenida-icono">
-            <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <circle cx="40" cy="80" r="26"></circle>
-                <circle cx="160" cy="80" r="26"></circle>
-                <circle cx="40" cy="80" r="7"></circle>
-                <circle cx="160" cy="80" r="7"></circle>
-                <path d="M40,80 L75,50 L112,50 L133,33 L152,33"></path>
-                <path d="M75,50 L58,32 L92,32 Z"></path>
-                <path d="M133,33 L160,80"></path>
-                <path d="M152,33 L168,22 M152,33 L142,18"></path>
-                <path d="M40,80 L18,68 L8,71"></path>
-            </svg>
-            <span>Motocicletas</span>
-        </div>
-        <div class="bienvenida-icono">
-            <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <circle cx="42" cy="82" r="25"></circle>
-                <circle cx="158" cy="82" r="23"></circle>
-                <path d="M42,58 L60,44 L132,44 L152,60"></path>
-                <path d="M60,44 L60,27 L102,27 L102,44"></path>
-                <path d="M132,44 L144,23 M132,44 L153,28"></path>
-                <path d="M42,58 L42,82 M158,60 L158,82"></path>
-                <path d="M60,60 L132,60"></path>
-            </svg>
-            <span>Cuadraciclos</span>
-        </div>
+        <img src="{{ url_for('static', filename='banner-bienvenida.jpg') }}" alt="Elián-Liam Motors CR — motocicletas y cuadraciclos" class="bienvenida-banner">
     </div>
 </section>
 
